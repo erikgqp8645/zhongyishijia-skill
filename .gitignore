@@ -27,3 +27,10 @@ dist/*.egg-info/
 # Local overrides
 .env.local
 .env.*.local
+
+# Reasonix local config
+.reasonix/
+reasonix.toml
+
+# Temp query output
+*.tsv
