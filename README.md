@@ -53,6 +53,9 @@ Copy-Item -Recurse . "$env:USERPROFILE\.hermes\skills\zhongyishijia-expert-mento
 
 # 5. 验证
 python "$env:USERPROFILE\.hermes\skills\zhongyishijia-expert-mentor-lineage\scripts\search_course_notes.py" '桂枝人参汤'
+
+# 6. 试用标准化查询脚本（可选）
+python "$env:USERPROFILE\.hermes\skills\zhongyishijia-expert-mentor-lineage\scripts\query_formula.py" '桂枝人参汤'
 ```
 
 ### 方式二：作为 OpenClaw Skill
@@ -68,6 +71,7 @@ cp -r . ~/.openclaw/skills/zhongyishijia-expert-mentor-lineage
 
 - 把 `references/` 当作 Agent 的 lookup path
 - 任何时候需要查证方剂/病证/中药时，运行 `scripts/search_course_notes.py <关键词>`
+- 需要历代医家论述汇总表时，运行 `scripts/query_formula.py <方剂名>`
 
 ---
 
@@ -108,6 +112,71 @@ cp -r . ~/.openclaw/skills/zhongyishijia-expert-mentor-lineage
 
 ---
 
+## 📋 标准化方剂查询（v2.0 新增）
+
+`scripts/query_formula.py` 是新增的标准化查询工具，当你需要查看某个方剂或条文的 **历代医家论述汇总** 时使用。
+
+### 用法
+
+```bash
+python scripts/query_formula.py <关键词>
+```
+
+### 示例
+
+```bash
+# 查询桂枝人参汤
+python scripts/query_formula.py 桂枝人参汤
+
+# 查询小柴胡汤
+python scripts/query_formula.py 小柴胡汤
+
+# 查询某个证候/条文
+python scripts/query_formula.py "协热利"
+python scripts/query_formula.py "心下痞硬"
+```
+
+### 输出格式
+
+自动输出按 **朝代从古至今排序** 的 Markdown 表格：
+
+| 朝代 | 著作 | 作者 | 原文论述摘要 | 卡片类型 |
+|:----:|:----:|:----:|:-----------|:--------:|
+| 东汉 | 《伤寒论》 | 张仲景 | 太阳病，外证未除，而数下之，遂协热而利… | herb |
+| 金 | 《明理论》 | 成无己 | 此一热字，乃言表热也，非言内热也… | clinical_theory |
+| 明 | 《景岳全书》 | 张介宾 | 独不观仲景桂枝人参汤，岂治内热之剂乎？… | clinical_theory |
+| 清 | 《四圣心源》 | 黄元御 | 宜桂枝人参汤，桂枝解其表，姜甘参术解其里… | clinical_theory |
+| 民国 | 《伤寒金匮发微》 | 曹颖甫 | 宜于理中汤或桂枝人参汤者十不过二三 | clinical_theory |
+| 现代 | 《方剂学》 | 教材 | 【功效】温阳健脾，解表散寒 | synthesis |
+| … | … | … | … | … |
+
+### 内置朝代/作者映射
+
+脚本内置 **50+ 条 source→(朝代, 著作, 作者)** 映射表，覆盖：
+
+- **东汉**：张仲景《伤寒论》《金匮要略》
+- **金**：成无己《明理论》
+- **日本江户**：吉益东洞《药征》
+- **明**：张介宾《景岳全书》、方有执《伤寒论条辨》
+- **清**：黄元御、柯琴、吴谦、张璐、汪昂、徐灵胎、张隐庵等十数家
+- **民国**：曹颖甫《伤寒金匮发微》《经方实验录》
+- **现代**：方剂学教材、《中国中医药报》等
+
+### 可选项
+
+```bash
+--max-cards 10   # 每个朝代最多输出多少条（默认 10）
+```
+
+### 与 search_course_notes.py 的区别
+
+| 工具 | 用途 |
+|:----|:----|
+| `search_course_notes.py` | 原始关键词检索，返回卡片原始内容 |
+| `query_formula.py` | **标准化输出**，自动识别朝代/作者并按年代排序为表格，适合查阅历代医家论述 |
+
+---
+
 ## 🏗️ 仓库结构
 
 ```
@@ -137,6 +206,7 @@ zhongyishijia-skill/
 └── scripts/
     ├── search_course_notes.py   # 关键词检索（Agent 主入口）
     ├── fetch_course_evidence.py # 按 chunk_id 取证据
+    ├── query_formula.py         # 标准化方剂查询（按朝代排序输出表格）
     └── search_md.py             # 全 markdown 文件检索（可选）
 ```
 
@@ -180,6 +250,22 @@ zhongyishijia-skill/
 ## 📦 相关项目
 
 - **lineage-skill** — 本 skill 的构建框架 ([JuneYaooo/lineage-skill](https://github.com/JuneYaooo/lineage-skill))
+
+---
+
+## 📋 更新日志
+
+### v2.0 (2026-07-01)
+
+- **新增** `scripts/query_formula.py` — 标准化方剂/条文查询工具
+  - 搜索 317,580 张证据卡片，自动识别朝代/著作/作者
+  - 按年代从古至今排序输出 Markdown 表格
+  - 内置 50+ 条 source→(朝代, 著作, 作者) 映射表
+  - 覆盖东汉张仲景、金成无己、明张介宾、清黄元御/柯琴/吴谦等十数家、民国曹颖甫及现代医家
+  - Windows 终端 UTF-8 编码兼容
+- **新增** 安装步骤第 6 步：试用标准化查询脚本
+- **更新** 仓库结构图，增加 `query_formula.py`
+- **更新** 自定义 Agent 使用说明
 
 ---
 
