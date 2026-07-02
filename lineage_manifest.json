@@ -1,0 +1,45 @@
+{
+  "schema_version": "0.1",
+  "course_name": "zhongyishijia",
+  "skill_name": "zhongyishijia-expert-mentor-lineage",
+  "roles": [
+    "expert",
+    "mentor"
+  ],
+  "modes": [
+    "expert",
+    "mentor"
+  ],
+  "scope": "multi-course",
+  "evidence_strategy": "standard",
+  "progress_strategy": "tracked",
+  "source_dir": "C:\\Users\\hxst01\\Documents\\aicoding\\zhongyishijia\\data\\.lineage\\zhongyishijia",
+  "generated_at": "2026-07-01T13:55:25",
+  "generated_by": {
+    "id": "lineage-skill",
+    "repository": "https://github.com/JuneYaooo/lineage-skill",
+    "script": "scripts/build_course_skill.py"
+  },
+  "provenance": {
+    "watermark": "lineage-skill:course-skill-builder:v0.1",
+    "watermark_visibility": "manifest-only",
+    "source_package": "C:\\Users\\hxst01\\Documents\\aicoding\\zhongyishijia\\data\\.lineage\\zhongyishijia\\course_package.json",
+    "note": "This packaged course Skill was generated from course materials by lineage-skill."
+  },
+  "reference_status": {
+    "course_package.json": "copied",
+    "course_digest.md": "copied",
+    "full_transcript.md": "copied",
+    "concept_glossary.md": "copied",
+    "quote_index.md": "copied",
+    "study_paths.md": "copied",
+    "lesson_index.json": "copied",
+    "evidence_map.json": "copied",
+    "mentor_playbook.md": "stubbed",
+    "mentor_sessions.md": "stubbed",
+    "learner_progress.json": "stubbed",
+    "okf/": "generated 4 concepts, 0 evidence chunks",
+    "scripts/search_course_notes.py": "generated",
+    "scripts/fetch_course_evidence.py": "copied"
+  }
+}

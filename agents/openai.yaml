@@ -1,0 +1,7 @@
+interface:
+  display_name: "zhongyishijia Course Skill"
+  short_description: "Source-grounded course Q&A, review, and workflows."
+  default_prompt: "Use $zhongyishijia-expert-mentor-lineage to answer questions about zhongyishijia and cite the course sources."
+
+policy:
+  allow_implicit_invocation: true
