@@ -34,3 +34,8 @@ reasonix.toml
 
 # Temp query output
 *.tsv
+
+# Raw SQLite data (中医世家原始数据库，660MB，不进 git)
+references/raw/*.sqlite
+references/raw/*.db
+references/raw/*.sqlite3

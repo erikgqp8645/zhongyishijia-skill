@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-06T11:18:32",
+  "project": {
+    "name": "zhongyishijia-skill",
+    "type": "lineage-skill",
+    "domain": "中医世家 (zysj.com.cn) 离线知识库",
+    "scope": "678 本古医书 + 31.7 万张证据卡",
+    "skills": ["expert", "mentor"]
+  },
+  "root_claude_md": {
+    "path": "CLAUDE.md",
+    "status": "created",
+    "has_mermaid": true,
+    "has_changelog": true,
+    "has_breadcrumbs": true
+  },
+  "modules": [
+    {
+      "path": "agents/",
+      "claude_md": "agents/CLAUDE.md",
+      "status": "created",
+      "responsibility": "OpenAI/Codex + OpenClaw 接口适配",
+      "files": [
+        {"path": "agents/openai.yaml", "type": "yaml", "status": "copied"},
+        {"path": "agents/openclaw.yaml", "type": "yaml", "status": "copied"}
+      ],
+      "test_coverage": "n/a (declarative config)",
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    },
+    {
+      "path": "scripts/",
+      "claude_md": "scripts/CLAUDE.md",
+      "status": "created",
+      "responsibility": "Agent 工具集（4 个脚本，v3.0 计划新增 3 个）",
+      "files": [
+        {"path": "scripts/search_course_notes.py", "type": "py", "version": "v1.0", "lines": 72},
+        {"path": "scripts/query_formula.py", "type": "py", "version": "v2.0", "lines": 286},
+        {"path": "scripts/fetch_course_evidence.py", "type": "py", "version": "v1.0", "lines": 81},
+        {"path": "scripts/search_md.py", "type": "py", "version": "v1.0", "lines": 78},
+        {"path": "scripts/_source_map.py", "type": "py", "version": "v3.0-planned", "status": "missing"},
+        {"path": "scripts/query_herb.py", "type": "py", "version": "v3.0-planned", "status": "missing"},
+        {"path": "scripts/build_herb_index.py", "type": "py", "version": "v3.0-planned", "status": "missing"},
+        {"path": "scripts/redistill_cards.py", "type": "py", "version": "v3.0-planned", "status": "missing"}
+      ],
+      "test_coverage": "4/4 README Q&A 通过",
+      "has_breadcrumbs": true,
+      "has_changelog": true,
+      "v3_plan_ref": "docs/PLAN_v3_query_herb.md"
+    },
+    {
+      "path": "references/",
+      "claude_md": "references/CLAUDE.md",
+      "status": "created",
+      "responsibility": "课程资源总目录（OKF + 蒸馏卡 + 原始数据 + 索引）",
+      "files": [
+        {"path": "references/course_digest.md", "type": "md", "status": "copied"},
+        {"path": "references/course_package.json", "type": "json", "status": "copied"},
+        {"path": "references/concept_glossary.md", "type": "md", "status": "copied"},
+        {"path": "references/evidence_map.json", "type": "json", "status": "copied"},
+        {"path": "references/lesson_index.json", "type": "json", "status": "copied"},
+        {"path": "references/quote_index.md", "type": "md", "status": "stubbed"},
+        {"path": "references/study_paths.md", "type": "md", "status": "copied"},
+        {"path": "references/mentor_playbook.md", "type": "md", "status": "stubbed"},
+        {"path": "references/mentor_sessions.md", "type": "md", "status": "stubbed"},
+        {"path": "references/learner_progress.json", "type": "json", "status": "stubbed"},
+        {"path": "references/full_transcript.md", "type": "md", "status": "copied"}
+      ],
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    },
+    {
+      "path": "references/okf/",
+      "claude_md": "references/okf/CLAUDE.md",
+      "status": "created",
+      "responsibility": "OKF 渐进式阅读框架（lineage-skill 生成）",
+      "files": [
+        {"path": "references/okf/index.md", "type": "md", "status": "generated"},
+        {"path": "references/okf/boundaries/index.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/boundaries/001-boundary-1.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/study-paths/index.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/study-paths/001-入门路径.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/study-paths/002-临床路径.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/study-paths/003-中药路径.md", "type": "md", "status": "stubbed"},
+        {"path": "references/okf/log.md", "type": "md", "status": "stubbed"}
+      ],
+      "concepts": 4,
+      "evidence_chunks": 0,
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    },
+    {
+      "path": "references/text_distillation/",
+      "claude_md": "references/text_distillation/CLAUDE.md",
+      "status": "created",
+      "responsibility": "蒸馏数据（evidence_cards.jsonl + herb_index.jsonl）",
+      "files": [
+        {"path": "references/text_distillation/evidence_cards.jsonl", "type": "jsonl", "size_mb": 232, "lines": 317580, "lfs": true},
+        {"path": "references/text_distillation/herb_index.jsonl", "type": "jsonl", "version": "v3.0-planned", "lfs": true, "status": "missing"}
+      ],
+      "data_distribution": {
+        "herb": 70350,
+        "clinical_theory": 166421,
+        "synthesis": 80809
+      },
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    },
+    {
+      "path": "references/raw/",
+      "claude_md": "references/raw/CLAUDE.md",
+      "status": "created",
+      "responsibility": "原始 SQLite 数据库（不入 git，本地缓存）",
+      "files": [
+        {"path": "references/raw/20120413mssql.sqlite", "type": "sqlite", "size_mb": 660, "git": false, "sha256": "6fa194c9a4177dfdd483c8fd7aa37a9e24e371d0692a85a338777bb6e9aee26f"},
+        {"path": "references/raw/README.md", "type": "md", "git": true, "preserved": true},
+        {"path": "references/raw/DATA_DICTIONARY.md", "type": "md", "git": true, "preserved": true}
+      ],
+      "tables": {
+        "zysjyj": 70350,
+        "zysjllsj": 166423,
+        "zysjzhsj": 80809,
+        "zysjcell": 1229
+      },
+      "encoding": "GBK",
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    },
+    {
+      "path": "docs/",
+      "claude_md": "docs/CLAUDE.md",
+      "status": "created",
+      "responsibility": "开发文档（v3.0 计划等）",
+      "files": [
+        {"path": "docs/PLAN_v3_query_herb.md", "type": "md", "status": "plan", "preserved": true}
+      ],
+      "has_breadcrumbs": true,
+      "has_changelog": true
+    }
+  ],
+  "coverage": {
+    "total_files": 30,
+    "scanned_files": 30,
+    "coverage_pct": 100,
+    "skipped": {
+      "git_internal": [".git/**"],
+      "reasonix_internal": [".reasonix/**"],
+      "lfs_data": ["references/text_distillation/evidence_cards.jsonl (git-lfs, 不读取内容)"],
+      "gitignored_raw": ["references/raw/20120413mssql.sqlite (660MB 不入 git)"]
+    }
+  },
+  "ignore_rules": {
+    "source": ".gitignore (project root)",
+    "patterns": [
+      "node_modules/**",
+      ".git/**",
+      ".github/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      "__pycache__/**",
+      "*.lock",
+      "*.log",
+      "*.bin",
+      "*.pdf",
+      "*.png",
+      "*.jpg",
+      "*.jpeg",
+      "*.gif",
+      "*.mp4",
+      "*.zip",
+      "*.tar",
+      "*.gz",
+      "Python: __pycache__/, *.pyc, *.pyo, *.pyd, .Python, *.egg-info/",
+      "Virtual env: .venv/, venv/, env/",
+      "IDE: .vscode/, .idea/, *.swp",
+      "OS: .DS_Store, Thumbs.db",
+      "Build: build/, dist/*.egg-info/",
+      "Local: .env.local, .env.*.local",
+      "Reasonix: .reasonix/, reasonix.toml",
+      "Temp: *.tsv",
+      "Raw SQLite: references/raw/*.sqlite, *.db, *.sqlite3"
+    ]
+  },
+  "breadcrumbs": {
+    "agents": "[根目录](../../CLAUDE.md) > **agents**",
+    "scripts": "[根目录](../../CLAUDE.md) > **scripts**",
+    "references": "[根目录](../../CLAUDE.md) > **references**",
+    "references/okf": "[根目录](../../../CLAUDE.md) > [references](../../CLAUDE.md) > **okf**",
+    "references/text_distillation": "[根目录](../../../CLAUDE.md) > [references](../../CLAUDE.md) > **text_distillation**",
+    "references/raw": "[根目录](../../../CLAUDE.md) > [references](../../CLAUDE.md) > **raw**",
+    "docs": "[根目录](../CLAUDE.md) > **docs**"
+  },
+  "mermaid": {
+    "included_in_root": true,
+    "node_count": 18,
+    "clickable_module_links": [
+      "agents", "scripts", "references",
+      "okf", "text_distillation", "raw",
+      "docs"
+    ]
+  },
+  "gaps": [
+    {
+      "module": "scripts/",
+      "gap": "v3.0 计划文件未创建：_source_map.py, query_herb.py, build_herb_index.py, redistill_cards.py",
+      "priority": "high",
+      "blocking": "docs/PLAN_v3_query_herb.md"
+    },
+    {
+      "module": "references/text_distillation/",
+      "gap": "v3.0 herb_index.jsonl 未生成",
+      "priority": "high",
+      "blocking": "scripts/build_herb_index.py"
+    },
+    {
+      "module": "references/text_distillation/",
+      "gap": "evidence_cards.jsonl v1.0 缺 5 个结构化字段（card_kind/dynasty/book/author/prescribed_herbs）",
+      "priority": "medium",
+      "blocking": "scripts/redistill_cards.py"
+    },
+    {
+      "module": "references/okf/",
+      "gap": "4 个概念文件均为 stubbed 状态",
+      "priority": "low",
+      "blocking": "lineage-skill 重新生成（需 LINEAGE_TEXT_API_KEY）"
+    },
+    {
+      "module": "references/quote_index.md",
+      "gap": "金句索引 stubbed",
+      "priority": "low",
+      "blocking": "lineage-skill 重新生成"
+    }
+  ],
+  "next_steps": [
+    "v3.0 启动：按 docs/PLAN_v3_query_herb.md 实施 5 个工作流",
+    "备份 evidence_cards.jsonl.bak 防重蒸馏失败",
+    "实现 scripts/_source_map.py 后立即迁移 query_formula.py 验证向后兼容",
+    "scripts/query_herb.py 实现后跑 docs/PLAN_v3_query_herb.md §五 验证清单",
+    "考虑把 find_sqlite_path() 抽到 scripts/_paths.py 共用"
+  ],
+  "truncated": false,
+  "truncation_reason": null
+}
