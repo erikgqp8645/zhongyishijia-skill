@@ -91,6 +91,17 @@ Active role(s): Expert, Mentor.
 - When progress tracking is available, update plans based on completed lessons, weak areas, and review needs.
 - If the course materials do not support a claim, say what is missing.
 
+## 反例清单（不要做的事）
+
+| # | 禁止行为 | 正确做法 |
+|---|---------|---------|
+| 1 | **不要**把通用模型知识包装成"课程内容"引用 | 所有回答须有 `references/` 或 `scripts/` 实际输出支撑 |
+| 2 | **不要**在没有 source_map 命中时编造朝代/作者 | 当 `identify_source` 返回"待考"时，明确标注"朝代待考"而非推测 |
+| 3 | **不要**跳过 distillation_audit 验证直接引用方剂条文 | 先确认数据来源于 `evidence_cards.jsonl` 而非模型生成 |
+| 4 | **不要**把 Chinglish 废话（"说白了""换句话说""首先其次综上"）写进 skill | 始终用简洁中文描述 |
+| 5 | **不要**用"建议/可以考虑/根据情况/灵活把握"等模糊措辞 | 改为具体参数、阈值、示例，如"当 SQLite 找不到时 → 用 --sqlite 参数指定路径" |
+| 6 | **不要**混用模型推断与本草原文 | 输出时须标注：`【推断】` vs `【原文】` |
+
 ## General Boundaries
 
 - Keep professional boundaries: this skill supports study, review, knowledge retrieval, and course-grounded application; it does not replace domain-specific professional advice.
