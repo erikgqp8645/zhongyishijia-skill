@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zhongyishijia-skill 优化报告</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; background: #FAFAF5; font-family: 'Noto Sans SC', 'Inter', sans-serif; padding: 40px 20px; }
+.card { width: 960px; background: #FAFAF5; color: #1A1A1A; }
+.brand-bar { background: #1A1A1A; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; }
+.brand-name { font-size: 20px; font-weight: 800; color: #fff; font-family: 'Inter', sans-serif; }
+.brand-name .dot { color: #E8590C; }
+.brand-date { font-size: 13px; color: #888; font-family: 'Inter', monospace; }
+.skill-name { font-size: 28px; font-weight: 900; color: #1A1A1A; margin: 32px 40px 8px; font-family: 'Noto Sans SC', sans-serif; }
+.skill-sub { font-size: 14px; color: #666; margin: 0 40px 24px; }
+.score-section { margin: 0 40px 32px; }
+.score-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
+.score-before { font-size: 48px; font-weight: 900; color: #ccc; font-family: 'Inter', sans-serif; }
+.score-arrow { font-size: 24px; color: #aaa; }
+.score-after { font-size: 64px; font-weight: 900; color: #1A1A1A; font-family: 'Inter', sans-serif; }
+.score-max { font-size: 18px; color: #999; font-family: 'Inter', sans-serif; }
+.score-delta { display: inline-block; background: #E8590C; color: #fff; font-size: 16px; font-weight: 700; padding: 4px 12px; border-radius: 4px; margin-left: 8px; font-family: 'Inter', sans-serif; }
+.dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 40px; }
+.dim-row { display: flex; align-items: center; gap: 8px; }
+.dim-name { font-size: 12px; color: #666; width: 140px; flex-shrink: 0; font-family: 'Noto Sans SC', sans-serif; }
+.dim-bar-bg { flex: 1; height: 12px; background: #eee; border-radius: 3px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.dim-score { font-size: 12px; font-weight: 700; color: #333; width: 32px; text-align: right; font-family: 'Inter', sans-serif; }
+.dim-delta { font-size: 11px; color: #E8590C; font-weight: 600; width: 36px; font-family: 'Inter', sans-serif; }
+.improvements { margin: 28px 40px; }
+.section-title { font-size: 13px; font-weight: 700; color: #1A1A1A; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Inter', sans-serif; }
+.improve-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.improve-badge { background: #E8590C; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; font-family: 'Inter', sans-serif; }
+.improve-text { font-size: 13px; color: #333; line-height: 1.5; font-family: 'Noto Sans SC', sans-serif; }
+.footer { margin: 32px 40px 40px; padding-top: 16px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.footer-brand { font-size: 13px; color: #999; font-family: 'Inter', sans-serif; }
+.footer-brand span { color: #E8590C; font-weight: 700; }
+.footer-note { font-size: 11px; color: #bbb; font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand-bar">
+    <div class="brand-name"><span class="dot">●</span> darwin-skill</div>
+    <div class="brand-date">2026-07-07</div>
+  </div>
+
+  <div class="skill-name">zhongyishijia-expert-mentor-lineage</div>
+  <div class="skill-sub">中医世家离线知识库 · 678本古医书 · 31.7万张证据卡</div>
+
+  <div class="score-section">
+    <div class="score-header">
+      <span class="score-before">57.4</span>
+      <span class="score-arrow">→</span>
+      <span class="score-after">66.6</span>
+      <span class="score-max">/ 100</span>
+      <span class="score-delta">+9.2</span>
+    </div>
+  </div>
+
+  <div class="dim-grid">
+    <div class="dim-row">
+      <span class="dim-name">dim1 Frontmatter</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:50%; background:#ccc;"></div></div>
+      <span class="dim-score">5</span>
+      <span class="dim-delta">—</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim2 工作流</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:70%; background:#4CAF50;"></div></div>
+      <span class="dim-score">7</span>
+      <span class="dim-delta">+3</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim3 失败编码</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:50%; background:#4CAF50;"></div></div>
+      <span class="dim-score">5</span>
+      <span class="dim-delta">+1</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim4 检查点</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:30%; background:#4CAF50;"></div></div>
+      <span class="dim-score">3</span>
+      <span class="dim-delta">+1</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim5 可执行具体性</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:70%; background:#ccc;"></div></div>
+      <span class="dim-score">7</span>
+      <span class="dim-delta">—</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim6 资源整合</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:100%; background:#4CAF50;"></div></div>
+      <span class="dim-score">10</span>
+      <span class="dim-delta">+8</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim7 整体架构</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:80%; background:#ccc;"></div></div>
+      <span class="dim-score">8</span>
+      <span class="dim-delta">—</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim8 实测表现</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:80%; background:#ccc;"></div></div>
+      <span class="dim-score">8</span>
+      <span class="dim-delta">—</span>
+    </div>
+    <div class="dim-row">
+      <span class="dim-name">dim9 反模式</span>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:100%; background:#4CAF50;"></div></div>
+      <span class="dim-score">10</span>
+      <span class="dim-delta">+6</span>
+    </div>
+  </div>
+
+  <div class="improvements">
+    <div class="section-title">主要改进</div>
+    <div class="improve-item">
+      <span class="improve-badge">R1</span>
+      <span class="improve-text"><strong>dim6 资源整合</strong>：删除4个不存在文件引用（distillation_audit.md/keyframe_selection/chunks.jsonl/full_transcript.md），dim6: 2→10</span>
+    </div>
+    <div class="improve-item">
+      <span class="improve-badge">R2</span>
+      <span class="improve-text"><strong>dim2/3/4 相关簇效应</strong>：新增Step1-4可执行工作流+3处🔴CHECKPOINT+Fallback规则表，dim4: 2→3, dim2: 4→7, dim3: 4→5</span>
+    </div>
+    <div class="improve-item">
+      <span class="improve-badge">R3</span>
+      <span class="improve-text"><strong>dim9 反模式黑名单</strong>：新增独立「反例清单」章节，6条禁令，dim9: 4→10</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-brand"><span>●</span> darwin-skill v2.0 · github.com/alchaincyf/darwin-skill</div>
+    <div class="footer-note">Train your Skills like you train your models</div>
+  </div>
+</div>
+</body>
+</html>
