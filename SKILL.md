@@ -31,19 +31,18 @@ Active role(s): Expert, Mentor.
 5. `references/evidence_map.json` for source files, screenshots, transcripts, and confidence notes.
 6. `references/quote_index.md` for memorable course statements.
 7. `references/study_paths.md` for review plans and learning routes.
-8. `references/distillation_audit.md` and `references/distillation_audit.json` for capture quality, audit policy, cross-source validation when applicable, missing evidence under the selected audit mode, and human-review notes when present.
+8. `references/distillation/` for distillation pipeline documentation and quality audit reports (if present).
 9. `references/course_package.json` for normalized package objects when structured lookup is needed.
-10. `references/full_transcript.md` for original wording when detailed citation is required.
-11. `references/keyframe_selection/model_keyframe_summary.md` for model-selected visual evidence when present.
-12. `references/keyframe_selection/` and `references/keyframes_model_selected/` for image manifests and selected frame files when present.
-13. `references/text_distillation/evidence_cards.jsonl` and `references/text_sources/chunks.jsonl` for pure-text evidence cards and source chunks when present.
+10. `references/full_transcript.md` for original wording when detailed citation is required (if present).
+11. `references/keyframe_selection/` for model-selected visual evidence and image manifests (if present in the package).
+13. `references/text_distillation/evidence_cards.jsonl` for pure-text evidence cards (31.7 万张, git-lfs).
 14. `references/transcripts/`, `references/analysis/`, and `references/documents/` for packaged source evidence directories when present.
 
 ## Capability Reading Strategy
 
 - For progressive reading, start with `references/okf/index.md`, open only the relevant OKF section index, then read individual concept files.
 - For factual questions, start with `references/course_package.json`, then use `references/evidence_map.json` and `scripts/search_course_notes.py` to locate supporting lessons, cards, transcripts, documents, or chunks.
-- Check `references/distillation_audit.md` or `references/distillation_audit.json` before treating a lesson as complete. Respect its `audit_mode` and per-lesson `cross_validation.policy`: cross-source validation is required only when comparable sources are available in auto mode, or when strict audit mode says it is required.
+- Check `references/distillation/` for distillation pipeline documentation and quality audit reports (if present).
 - For application, consulting, or output-producing requests, prioritize `methods`, `diagnostics`, `workflows`, `rubrics`, `templates`, `transfer_rules`, and `failure_modes` from `references/course_package.json`.
 - Use `references/text_distillation/evidence_cards.jsonl` to separate direct source cards from your own synthesis.
 - Use OKF `# Citations` links for readable provenance, and use JSON/script lookup when exact source spans are required.
