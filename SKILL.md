@@ -40,15 +40,43 @@ Active role(s): Expert, Mentor.
 
 ## Capability Reading Strategy
 
-- For progressive reading, start with `references/okf/index.md`, open only the relevant OKF section index, then read individual concept files.
-- For factual questions, start with `references/course_package.json`, then use `references/evidence_map.json` and `scripts/search_course_notes.py` to locate supporting lessons, cards, transcripts, documents, or chunks.
-- Check `references/distillation/` for distillation pipeline documentation and quality audit reports (if present).
-- For application, consulting, or output-producing requests, prioritize `methods`, `diagnostics`, `workflows`, `rubrics`, `templates`, `transfer_rules`, and `failure_modes` from `references/course_package.json`.
-- Use `references/text_distillation/evidence_cards.jsonl` to separate direct source cards from your own synthesis.
-- Use OKF `# Citations` links for readable provenance, and use JSON/script lookup when exact source spans are required.
-- Use `scripts/fetch_course_evidence.py --chunk-id <chunk_id>` or `--card-id <card_id>` when the answer depends on exact source wording, controversial claims, or high-impact recommendations.
-- In multi-course packages, preserve `source_course` and `source_course_id` distinctions. If sources disagree, report the disagreement instead of flattening it into one claim.
-- Label adapted recommendations as inference. Do not present generic model knowledge or unsupported extrapolation as course content.
+### Step 1 — 判断查询类型
+收到用户问题后，先判断属于哪类查询：
+
+| 查询类型 | 特征 | 优先工具 |
+|---------|------|---------|
+| **方剂条文查询** | 用户给方剂名，问组成/主治/历代论述 | `python scripts/query_formula.py <方剂名>` |
+| **本草+含药方剂查询** | 用户给中药名，问本草记载或含此药的所有方剂 | `python scripts/query_herb.py <中药名>` |
+| **症状→核心药分析** | 用户描述症状，问该用什么药/的高频核心药 | `python scripts/query_disease.py <症状> --top N` |
+| **证据卡片检索** | 用户给关键词，检索 31.7 万张证据卡 | `python scripts/search_course_notes.py <关键词>` |
+| **原文取回** | 用户给 chunk_id / card_id，要查原文 | `python scripts/fetch_course_evidence.py --card-id <id>` |
+| **通用课程问答** | 概念/条文/学习路径问题 | 先查 `references/okf/index.md` → `references/course_package.json` |
+
+### Step 2 — 执行查询
+按上表选择对应脚本执行。
+
+### 🔴 CHECKPOINT — 工具选择确认
+如果以上分类无法判断用户意图，**先向用户确认**：
+- "您是想查这个方剂的组成，还是查含这味药的所有方剂？"
+- "您是想了解这味药的本草记载，还是想知道它出现在哪些方剂里？"
+
+### Step 3 — 验证与输出
+- 检查脚本输出是否为空/异常；**如果无结果**，明确告知用户"该症状/药物暂无数据"
+- 输出时：区分直接引用（课程内容）vs 推断（标注 "【推断】"）
+- 🔴 CHECKPOINT — 输出前确认：是否区分了来源与推断？是否保留了不同意见？
+
+### Step 4 — 当来源冲突时
+如果多个来源记录不一致，**不要**自行裁决，报告分歧：
+- "《千金方》和《圣济总录》对本方的记载有出入：《千金方》记为……，《圣济总录》记为……"
+
+### Fallback 规则
+| 触发条件 | 修复动作 |
+|---------|---------|
+| `query_formula.py` 无结果 | 尝试 `search_course_notes.py <方剂名>` 全文检索 |
+| `query_herb.py` 无结果 | 尝试 `search_course_notes.py <药名>` |
+| `query_disease.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
+| 脚本文件不存在 | 降级为 `search_course_notes.py` 关键词检索 |
+| SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数"
 
 ## Response Rules
 
