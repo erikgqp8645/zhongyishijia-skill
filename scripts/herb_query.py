@@ -4,10 +4,11 @@
 按中药查方剂 — 查询一味中药的历代本草论述及含此药的所有方剂
 
 用法:
-  python scripts/query_herb.py <中药名>
-  python scripts/query_herb.py 细辛
-  python scripts/query_herb.py 麻黄 --sqlite C:/path/to/20120413mssql.sqlite
-  python scripts/query_herb.py 桂枝 --max-formulas 30
+  python scripts/herb_query.py <中药名>
+  python scripts/herb_query.py 细辛
+  python scripts/herb_query.py 麻黄 --sqlite C:/path/to/20120413mssql.sqlite
+  python scripts/herb_query.py 桂枝 --max-formulas 30
+  python scripts/herb_query.py <中药名> --excel output.xlsx
 
 输出格式: 双段 Markdown
   第一段：本药历代本草论述（按朝代排序）
@@ -24,36 +25,15 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Windows 终端修复: 确保 stdout 输出 UTF-8
-if sys.stdout.encoding != "utf-8":
-    try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-    except Exception:
-        pass
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
 
+from _sqlite_utils import find_sqlite_path, setup_windows_stdout
 from _source_map import DYNASTY_ORDER, identify_source_string
+from _text_utils import esc
 
-
-def find_sqlite_path(sqlite_arg: Optional[str] = None) -> Path:
-    """按优先级查找 SQLite 文件位置"""
-    candidates = []
-    if sqlite_arg:
-        candidates.append(Path(sqlite_arg))
-    candidates.extend([
-        Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
-    ])
-    for c in candidates:
-        if c and c.exists() and c.is_file():
-            return c
-    raise FileNotFoundError(
-        "找不到 20120413mssql.sqlite。请：\n"
-        "1. 设置环境变量：export ZHONGYISHIJIA_SQLITE=/path/to/20120413mssql.sqlite\n"
-        "2. 或放到 ~/.cache/zhongyishijia/20120413mssql.sqlite\n"
-        "3. 或放到 <project>/references/raw/20120413mssql.sqlite\n"
-        "4. 或使用 --sqlite 参数指定路径"
-    )
+setup_windows_stdout()
 
 
 def parse_sources(source_str: str) -> list[str]:
@@ -148,13 +128,107 @@ def query_herb(
     return herb_rows[:max_herb_rows], formula_rows[:max_formula_rows]
 
 
-def esc(text: str, limit: int = 0) -> str:
-    """转义 | 和换行符，并在指定长度截断（转义在截断之前执行）"""
-    text = re.sub(r"[|]", "｜", text)
-    text = text.replace("\n", " ").replace("\r", " ")  # 换行符转为空格
-    if limit > 0 and len(text) > limit:
-        text = text[:limit] + "…"
-    return text
+
+def render_excel(
+    herb: str,
+    herb_rows: list[dict],
+    formula_rows: list[dict],
+    output_path: Path,
+):
+    """将查询结果写入 Excel 文件（多 Sheet）"""
+    wb = openpyxl.Workbook()
+
+    # ── Sheet 1: 本草论述 ───────────────────────────────────
+    ws1 = wb.active
+    ws1.title = "本草论述"
+
+    # 表头样式
+    hdr_font = Font(name="微软雅黑", bold=True, size=11, color="FFFFFF")
+    hdr_fill = PatternFill("solid", fgColor="4472C4")
+    hdr_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    thin = Side(border_style="thin", color="CCCCCC")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+
+    headers1 = ["朝代", "著作", "作者", "性味", "归经", "功能主治"]
+    for col_idx, h in enumerate(headers1, 1):
+        cell = ws1.cell(row=1, column=col_idx, value=h)
+        cell.font = hdr_font
+        cell.fill = hdr_fill
+        cell.alignment = hdr_align
+        cell.border = border
+
+    for row_idx, row in enumerate(herb_rows, 2):
+        values = [
+            row.get("dynasty", ""),
+            row.get("book", ""),
+            row.get("author", ""),
+            esc(row.get("nature", ""), 40),
+            esc(row.get("meridian", ""), 40),
+            esc(row.get("indication", ""), 200),
+        ]
+        for col_idx, val in enumerate(values, 1):
+            cell = ws1.cell(row=row_idx, column=col_idx, value=val)
+            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            cell.border = border
+
+    # 列宽
+    col_widths1 = [12, 25, 15, 25, 25, 60]
+    for i, w in enumerate(col_widths1, 1):
+        ws1.column_dimensions[get_column_letter(i)].width = w
+
+    # ── Sheet 2: 含药方剂 ───────────────────────────────────
+    ws2 = wb.create_sheet("含药方剂")
+
+    headers2 = ["朝代", "著作", "作者", "方剂名", "处方组成", "主治"]
+    for col_idx, h in enumerate(headers2, 1):
+        cell = ws2.cell(row=1, column=col_idx, value=h)
+        cell.font = hdr_font
+        cell.fill = hdr_fill
+        cell.alignment = hdr_align
+        cell.border = border
+
+    for row_idx, row in enumerate(formula_rows, 2):
+        values = [
+            row.get("dynasty", "") or "待考",
+            esc(row.get("book", ""), 25),
+            row.get("author", "") or "",
+            esc(row.get("formula", ""), 20),
+            esc(row.get("prescription", ""), 80),
+            esc(row.get("indication", ""), 80),
+        ]
+        for col_idx, val in enumerate(values, 1):
+            cell = ws2.cell(row=row_idx, column=col_idx, value=val)
+            cell.alignment = Alignment(wrap_text=True, vertical="top")
+            cell.border = border
+
+    col_widths2 = [12, 25, 15, 22, 60, 60]
+    for i, w in enumerate(col_widths2, 1):
+        ws2.column_dimensions[get_column_letter(i)].width = w
+
+    # ── Sheet 3: 统计总览 ───────────────────────────────────
+    ws3 = wb.create_sheet("统计总览")
+    stat_font = Font(name="微软雅黑", bold=True, size=11)
+    stat_fill = PatternFill("solid", fgColor="D9E1F2")
+    stat_align = Alignment(horizontal="left", vertical="center")
+
+    ws3.cell(row=1, column=1, value="查询药材").font = stat_font
+    ws3.cell(row=1, column=2, value=herb).alignment = stat_align
+    ws3.cell(row=2, column=1, value="本草论述").font = stat_font
+    ws3.cell(row=2, column=2, value=f"{len(herb_rows)} 条").alignment = stat_align
+    ws3.cell(row=3, column=1, value="含药方剂").font = stat_font
+    ws3.cell(row=3, column=2, value=f"{len(formula_rows)} 条").alignment = stat_align
+    ws3.cell(row=4, column=1, value="数据来源").font = stat_font
+    ws3.cell(row=4, column=2, value="中医世家知识库 20120413mssql.sqlite").alignment = stat_align
+
+    for r in range(1, 5):
+        ws3.cell(row=r, column=1).fill = stat_fill
+        ws3.cell(row=r, column=2).fill = stat_fill
+
+    ws3.column_dimensions["A"].width = 15
+    ws3.column_dimensions["B"].width = 40
+
+    wb.save(output_path)
+    print(f"✓ 已保存至: {output_path}", file=sys.stderr)
 
 
 def render(herb: str, herb_rows: list[dict], formula_rows: list[dict]) -> None:
@@ -233,6 +307,10 @@ def main() -> None:
         default=20,
         help="最多输出多少条本草论述（默认 20）",
     )
+    parser.add_argument(
+        "--excel",
+        help="输出为 Excel 文件路径（默认输出 Markdown）",
+    )
     args = parser.parse_args()
 
     try:
@@ -250,7 +328,10 @@ def main() -> None:
     )
     print(f"找到 {len(herb_rows)} 条本草记录，{len(formula_rows)} 条方剂记录\n", file=sys.stderr)
 
-    render(args.herb, herb_rows, formula_rows)
+    if args.excel:
+        render_excel(args.herb, herb_rows, formula_rows, Path(args.excel))
+    else:
+        render(args.herb, herb_rows, formula_rows)
 
 
 if __name__ == "__main__":

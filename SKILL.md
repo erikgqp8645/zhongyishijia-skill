@@ -22,6 +22,18 @@ Active role(s): Expert, Mentor.
 - **Expert**: Answer course questions using packaged references first. Explain concepts, lessons, themes, cases, quotes, and study paths. Distinguish course content from your own synthesis.
 - **Mentor**: Act as a course-specific mentor grounded in the packaged course materials. Guide the user through learning plans, practice, review, weak-point diagnosis, and course-backed application. Ask clarifying or diagnostic questions when the user's goal, level, schedule, or application context is unclear.
 
+## 子 Skill 索引
+
+本项目由 5 个独立 Skill 组成，按查询意图选择对应 Skill：
+
+| 子 Skill | 描述 | 触发词 |
+|---------|------|--------|
+| **[formula-query](skills/formula-query/)** | 方剂历代条文 + 朝代排序 | "XX汤治什么"、"XX方组成"、"历代注解" |
+| **[herb-query](skills/herb-query/)** | 本草记载 + 含药方剂查询 | "XX的本草"、"含XX的方剂" |
+| **[symptom-query](skills/symptom-query/)** | 症状→高频核心药→本草溯源 | "XX用什么药"、"高频核心药" |
+| **[evidence-fetch](skills/evidence-fetch/)** | card_id/chunk_id 原文取回 | "card_id:xxx"、"chunk_id:xxx" |
+| **[text-search](skills/text-search/)** | 关键词全文检索 | "搜索XX"、"查一下XX" |
+
 ## Reference Priority
 
 1. `references/okf/index.md` for progressive reading, human-readable concept files, and cross-linked capability navigation.
@@ -45,11 +57,11 @@ Active role(s): Expert, Mentor.
 
 | 查询类型 | 特征 | 优先工具 |
 |---------|------|---------|
-| **方剂条文查询** | 用户给方剂名，问组成/主治/历代论述 | `python scripts/query_formula.py <方剂名>` |
-| **本草+含药方剂查询** | 用户给中药名，问本草记载或含此药的所有方剂 | `python scripts/query_herb.py <中药名>` |
-| **症状→核心药分析** | 用户描述症状，问该用什么药/的高频核心药 | `python scripts/query_disease.py <症状> --top N` |
-| **证据卡片检索** | 用户给关键词，检索 31.7 万张证据卡 | `python scripts/search_course_notes.py <关键词>` |
-| **原文取回** | 用户给 chunk_id / card_id，要查原文 | `python scripts/fetch_course_evidence.py --card-id <id>` |
+| **方剂条文查询** | 用户给方剂名，问组成/主治/历代论述 | `python scripts/formula_query.py <方剂名>` |
+| **本草+含药方剂查询** | 用户给中药名，问本草记载或含此药的所有方剂 | `python scripts/herb_query.py <中药名>` |
+| **症状→核心药分析** | 用户描述症状，问该用什么药/的高频核心药 | `python scripts/symptom_query.py <症状> --top N` |
+| **证据卡片检索** | 用户给关键词，检索 31.7 万张证据卡 | `python scripts/text_search.py <关键词>` |
+| **原文取回** | 用户给 chunk_id / card_id，要查原文 | `python scripts/evidence_fetch.py --card-id <id>` |
 | **通用课程问答** | 概念/条文/学习路径问题 | 先查 `references/okf/index.md` → `references/course_package.json` |
 
 ### Step 2 — 执行查询
@@ -72,10 +84,10 @@ Active role(s): Expert, Mentor.
 ### Fallback 规则
 | 触发条件 | 修复动作 |
 |---------|---------|
-| `query_formula.py` 无结果 | 尝试 `search_course_notes.py <方剂名>` 全文检索 |
-| `query_herb.py` 无结果 | 尝试 `search_course_notes.py <药名>` |
-| `query_disease.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
-| 脚本文件不存在 | 降级为 `search_course_notes.py` 关键词检索 |
+| `formula_query.py` 无结果 | 尝试 `text_search.py <方剂名>` 全文检索 |
+| `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` |
+| `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
+| 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
 | SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数"
 
 ## Response Rules

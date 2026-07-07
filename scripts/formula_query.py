@@ -20,16 +20,10 @@ import io
 import json
 import re
 import sys
-
-# Windows 终端修复: 确保 stdout 输出 UTF-8
-if sys.stdout.encoding != "utf-8":
-    try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-    except Exception:
-        pass
 from pathlib import Path
 from typing import Optional
 
+from _sqlite_utils import setup_windows_stdout
 from _source_map import (
     DYNASTY_ORDER,
     SOURCE_MAP,
@@ -37,6 +31,8 @@ from _source_map import (
     identify_source,
     sort_key,
 )
+
+setup_windows_stdout()
 
 
 def clean_summary(text: str, max_len: int = 300) -> str:

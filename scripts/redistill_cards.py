@@ -23,32 +23,11 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Windows 终端修复
-if sys.stdout.encoding != "utf-8":
-    try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-    except Exception:
-        pass
-
+from _sqlite_utils import find_sqlite_path, setup_windows_stdout
 from _source_map import DYNASTY_ORDER, identify_source_string
+from _text_utils import safe_utf8, extract_herbs as extract_prescribed_herbs
 
-
-def find_sqlite_path(sqlite_arg: str | None) -> Path:
-    """按优先级查找 SQLite 文件位置"""
-    candidates = []
-    if sqlite_arg:
-        candidates.append(Path(sqlite_arg))
-    candidates.extend([
-        Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
-    ])
-    for c in candidates:
-        if c and c.exists() and c.is_file():
-            return c
-    raise FileNotFoundError(
-        "找不到 20120413mssql.sqlite。请使用 --sqlite 参数指定路径。"
-    )
+setup_windows_stdout()
 
 
 def extract_typeid_from_tags(tags) -> int | None:
@@ -73,34 +52,6 @@ def parse_chunk_id(chunk_id: str) -> tuple[str, int] | None:
         return parts[0], int(parts[1])
     except ValueError:
         return None
-
-
-def extract_prescribed_herbs(chufang: str) -> list[str]:
-    """从 ChuFang 字段提取药名列表"""
-    if not chufang:
-        return []
-    herbs: list[str] = []
-    # 支持逗号、句号、空格、顿号分隔
-    parts = re.split(r"[,，。、\s]+", chufang)
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        m = re.match(r"^([一-龥]{2,10})", part)
-        if m:
-            name = m.group(1)
-            if name not in {"一方", "各等分", "各等份", "等分", "一方各", "兼给", "各半"}:
-                herbs.append(name)
-    return herbs
-
-
-def safe_utf8(val, default=""):
-    """将 SQLite 原始值转为 UTF-8 字符串"""
-    if val is None:
-        return default
-    if isinstance(val, bytes):
-        return val.decode("utf-8", errors="replace")
-    return str(val)
 
 
 def build_sqlite_cache(sqlite_path: Path) -> dict[tuple[str, int], dict]:

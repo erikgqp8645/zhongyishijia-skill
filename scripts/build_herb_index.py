@@ -23,33 +23,9 @@ import sys
 from pathlib import Path
 from collections import defaultdict
 
-# Windows 终端修复
-if sys.stdout.encoding != "utf-8":
-    try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-    except Exception:
-        pass
+from _sqlite_utils import find_sqlite_path, setup_windows_stdout
 
-
-def find_sqlite_path(sqlite_arg: str | None) -> Path:
-    """按优先级查找 SQLite 文件位置"""
-    candidates = []
-    if sqlite_arg:
-        candidates.append(Path(sqlite_arg))
-    candidates.extend([
-        Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
-    ])
-    for c in candidates:
-        if c and c.exists() and c.is_file():
-            return c
-    raise FileNotFoundError(
-        "找不到 20120413mssql.sqlite。请：\n"
-        "1. 设置环境变量：export ZHONGYISHIJIA_SQLITE=/path/to/20120413mssql.sqlite\n"
-        "2. 或放到 ~/.cache/zhongyishijia/20120413mssql.sqlite\n"
-        "3. 或使用 --sqlite 参数指定路径"
-    )
+setup_windows_stdout()
 
 
 def extract_herbs_from_chufang(chufang: str) -> list[str]:

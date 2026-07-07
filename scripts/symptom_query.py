@@ -29,84 +29,10 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from _sqlite_utils import find_sqlite_path, setup_windows_stdout
+from _text_utils import esc, extract_herbs, s
 
-# Windows 终端修复
-if sys.stdout.encoding != "utf-8":
-    try:
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-    except Exception:
-        pass
-
-
-def find_sqlite_path(sqlite_arg: str | None = None) -> Path:
-    candidates = []
-    if sqlite_arg:
-        candidates.append(Path(sqlite_arg))
-    candidates.extend([
-        Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
-        Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
-    ])
-    for c in candidates:
-        if c and c.exists() and c.is_file():
-            return c
-    raise FileNotFoundError(
-        "找不到 20120413mssql.sqlite。请使用 --sqlite 参数指定路径。"
-    )
-
-
-def s(val) -> str:
-    """安全转字符串，并去除首尾空白"""
-    if val is None:
-        return ""
-    if isinstance(val, bytes):
-        return val.decode("utf-8", errors="replace").strip()
-    return str(val).strip()
-
-
-def extract_herbs(chufang: str) -> list[str]:
-    """从 ChuFang 字段提取药名列表
-
-    策略：先用（）分割去除炮制指令段，再按分隔符提取药名。
-    例: "天雄（炮.去皮.脐）麻黄（去节）" → ["天雄", "麻黄"]
-    """
-    if not chufang:
-        return []
-    herbs: list[str] = []
-
-    # ── 第 1 步：去除炮制指令段 ─────────────────────────────
-    # 匹配全角/半角括号及其内容，如 "（去皮脐)" "(炮.去皮.脐)"
-    cleaned = re.sub(r"[（(][^)）]*[)）]", "", chufang)
-
-    # ── 第 2 步：按分隔符分割 ────────────────────────────────
-    parts = re.split(r"[,，。、\s]+", cleaned)
-
-    # ── 第 3 步：NOISE 过滤 + 药名提取 ──────────────────────
-    NOISE = {
-        # 通用非药名
-        "一方", "各等分", "各等份", "等分", "一方各", "兼给", "各半",
-        "各", "每服", "右为", "右七味", "右六味", "右八味",
-        "右九味", "右十味", "一两", "二两", "三两", "二枚", "三枚",
-        # 炮制关键词（避免误提取）
-        "去皮", "去节", "去核", "去心", "去芦", "去骨",
-        "去脐", "去刺", "去翅", "去鳞", "去蒂", "去膂",
-        "炙", "炒", "煨", "烘", "酒浸", "醋浸", "水洗",
-        "米泔浸", "泔浸", "泔洗",
-        "炮", "煅", "煮", "蒸", "焙", "炙甘草",
-        # 剂型/服用关键词
-        "丸", "汤", "散", "膏", "煎", "渍", "酿", "末",
-        "服", "钱匕", "钱", "匕", "盏", "升", "合",
-    }
-    for part in parts:
-        part = part.strip()
-        if not part:
-            continue
-        m = re.match(r"^([一-龥]{2,10})", part)
-        if m:
-            name = m.group(1).strip()
-            if name not in NOISE:
-                herbs.append(name)
-    return herbs
+setup_windows_stdout()
 
 
 def query_disease(
@@ -176,15 +102,6 @@ def query_disease(
     conn2.close()
 
     return formula_rows, herb_counter, herb_bencao
-
-
-def esc(text: str, limit: int = 0) -> str:
-    """转义 | 和换行符，并在指定长度截断"""
-    text = re.sub(r"[|\n\r]", " ", text)
-    text = text.strip()
-    if limit > 0 and len(text) > limit:
-        text = text[:limit] + "…"
-    return text
 
 
 def render(
