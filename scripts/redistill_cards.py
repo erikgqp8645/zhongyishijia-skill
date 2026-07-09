@@ -23,11 +23,33 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from _sqlite_utils import find_sqlite_path, setup_windows_stdout
-from _source_map import DYNASTY_ORDER, identify_source_string
-from _text_utils import safe_utf8, extract_herbs as extract_prescribed_herbs
+# Windows 终端修复
+if sys.stdout.encoding != "utf-8":
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    except Exception:
+        pass
 
-setup_windows_stdout()
+from _source_map import DYNASTY_ORDER, identify_source_string
+from _text_utils import extract_herbs as extract_prescribed_herbs
+
+
+def find_sqlite_path(sqlite_arg: str | None) -> Path:
+    """按优先级查找 SQLite 文件位置"""
+    candidates = []
+    if sqlite_arg:
+        candidates.append(Path(sqlite_arg))
+    candidates.extend([
+        Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
+        Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
+        Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
+    ])
+    for c in candidates:
+        if c and c.exists() and c.is_file():
+            return c
+    raise FileNotFoundError(
+        "找不到 20120413mssql.sqlite。请使用 --sqlite 参数指定路径。"
+    )
 
 
 def extract_typeid_from_tags(tags) -> int | None:
@@ -54,6 +76,15 @@ def parse_chunk_id(chunk_id: str) -> tuple[str, int] | None:
         return None
 
 
+def safe_utf8(val, default=""):
+    """将 SQLite 原始值转为 UTF-8 字符串"""
+    if val is None:
+        return default
+    if isinstance(val, bytes):
+        return val.decode("utf-8", errors="replace")
+    return str(val)
+
+
 def build_sqlite_cache(sqlite_path: Path) -> dict[tuple[str, int], dict]:
     """加载 SQLite 数据到内存缓存（仅 zysjyj 表的关键字段）"""
     print(f"加载 SQLite 到缓存: {sqlite_path}", file=sys.stderr)
@@ -66,17 +97,18 @@ def build_sqlite_cache(sqlite_path: Path) -> dict[tuple[str, int], dict]:
     # zysjyj 表
     print("  缓存 zysjyj...", file=sys.stderr)
     cur.execute(
-        "SELECT ID, TypeID, MingCheng, ChuFang, ChuChu, LaiYuan "
+        "SELECT ID, TypeID, MingCheng, ChuFang, ChuChu, LaiYuan, ZhaiLu "
         "FROM zysjyj"
     )
     for r in cur.fetchall():
-        row_id, typeid, mingcheng, chufang, chuchu, laiyuan = r
+        row_id, typeid, mingcheng, chufang, chuchu, laiyuan, zhailu = r
         cache[("zysjyj", row_id)] = {
             "typeid": typeid,
             "mingcheng": safe_utf8(mingcheng),
             "chufang": safe_utf8(chufang),
             "chuchu": safe_utf8(chuchu),
             "laiyuan": safe_utf8(laiyuan),
+            "zhailu": safe_utf8(zhailu),
         }
 
     # zysjllsj 表
@@ -140,10 +172,11 @@ def enrich_card(card: dict, cache: dict[tuple[str, int], dict]) -> dict:
     if table == "zysjyj":
         chuchu = row.get("chuchu", "")
         laiyuan = row.get("laiyuan", "")
+        zhailu = row.get("zhailu", "")
         chufang = row.get("chufang", "")
         mingcheng = row.get("mingcheng", "")
-        # 优先级: LaiYuan > ChuChu > MingCheng，extra 始终用 ChuFang
-        primary = laiyuan if laiyuan else (chuchu if chuchu else mingcheng)
+        # 优先级: ZhaiLu > LaiYuan > ChuChu > MingCheng，extra 始终用 ChuFang
+        primary = zhailu if zhailu else (laiyuan if laiyuan else (chuchu if chuchu else mingcheng))
         dyn, book, author = identify_source_string(primary, extra=chufang)
         card["dynasty"] = dyn
         card["book"] = book
@@ -225,11 +258,11 @@ def main() -> None:
     import shutil
     shutil.copy2(cards_path, bak_path)
 
-    # 重蒸馏
+    # 重蒸馏：读备份，写入临时文件，再移动替换（避免文件锁定）
     print(f"开始重蒸馏: {cards_path}", file=sys.stderr)
-    tmp_path = cards_path.with_suffix(".jsonl.tmp")
+    tmp_path = cards_path.parent / "evidence_cards.jsonl.tmp"
     total = 0
-    with open(cards_path, encoding="utf-8", errors="replace") as fin, \
+    with open(bak_path, encoding="utf-8", errors="replace") as fin, \
          open(tmp_path, "w", encoding="utf-8") as fout:
         for line in fin:
             if not line.strip():
@@ -244,8 +277,9 @@ def main() -> None:
             if total % 50000 == 0:
                 print(f"  已处理 {total} 条...", file=sys.stderr)
 
-    # 替换原文件
+    # 移动临时文件替换目标，删除备份
     tmp_path.replace(cards_path)
+    bak_path.unlink()
     print(f"✓ 重蒸馏完成: {total} 条卡片已更新", file=sys.stderr)
 
 

@@ -32,7 +32,7 @@ HERB_NOISE: set[str] = {
 
 
 def safe_utf8(val, default: str = "") -> str:
-    """SQLite 原始值 → UTF-8 字符串"""
+    """SQLite 原始值（UTF-8） → UTF-8 字符串"""
     if val is None:
         return default
     if isinstance(val, bytes):
@@ -41,7 +41,7 @@ def safe_utf8(val, default: str = "") -> str:
 
 
 def s(val) -> str:
-    """安全转字符串（SQLite bytes→UTF-8），并去除首尾空白"""
+    """安全转字符串（SQLite UTF-8 bytes→UTF-8），并去除首尾空白"""
     if val is None:
         return ""
     if isinstance(val, bytes):

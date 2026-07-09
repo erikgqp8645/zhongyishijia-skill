@@ -37,13 +37,17 @@ $ python scripts/query_formula.py 细辛
 
 ## 三、实施计划（5 个工作流）
 
-> **状态追踪**（2026-07-09 下午）：
+> **状态追踪**（2026-07-09 下午第二次更新）：
 > - 工作流 1 ✅ 已完成：`_source_map.py` 已交付，`SOURCE_MAP` 已扩展至 80+ 条目
 > - 工作流 2 ✅ 已完成：`formula_query.py` 重构完成，向后兼容
 > - 工作流 3 ✅ 已完成：`herb_query.py` 已交付（`scripts/herb_query.py`），`esc()` HTML 实体修复
-> - 工作流 4 ⚠️ 已运行但有编码 bug：生成 28,576 条，`herb` 字段 GBK 乱码；需修复 `safe_utf8()` 改用 GBK 解码
-> - 工作流 5 ⚠️ 已运行但有编码 bug：`dynasty/book` 字段 GBK 乱码 `����`；需修复 `redistill_cards.py` 的解码逻辑
-> - **下一步**：修复 `_text_utils.py` 的 `safe_utf8()` 和 `s()` 函数，改 `bytes.decode("utf-8")` → `bytes.decode("gbk", errors="replace")`，然后重新运行工作流 4 和 5
+> - 工作流 4 ✅ 已完成：生成 28,576 条，`herb` 字段 UTF-8 解码正确
+> - 工作流 5 ✅ 已完成：`dynasty/book/prescribed_herbs` 字段全部正确（东汉《伤寒论》、现代《中国药典》等）
+> - **修复记录**：
+>   1. SQLite 编码确认是 UTF-8（非 GBK）
+>   2. `redistill_cards.py` 新增 `ZhaiLu` 字段读取（真正的来源字段）
+>   3. `redistill_cards.py` 修复 Windows 文件锁定问题（改用 bak→tmp→replace 策略）
+>   4. `redistill_cards.py` 删除本地 `extract_prescribed_herbs`，改用 `_text_utils.extract_herbs`
 
 ### 工作流 1：抽出共用映射模块 + 扩展 SOURCE_MAP ✅ 已完成
 
