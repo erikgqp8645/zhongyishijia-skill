@@ -40,6 +40,7 @@
 | `full_transcript.md` | 文档 | stub | 源文件索引 | git |
 | `okf/` | 子模块 | — | 渐进式阅读框架 | git |
 | `text_distillation/` | 子模块 | 232MB | 31.7 万张 evidence_cards.jsonl | **LFS** |
+| `books_json/` | 子模块 | 207MB | **689 本古籍 JSON**（每本书一个文件，按 BM1/章节/条目结构化） | **LFS** |
 | `raw/` | 子模块 | 660MB | 原始 SQLite（**不入 git**） | **gitignore** |
 
 ---

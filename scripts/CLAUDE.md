@@ -34,6 +34,7 @@
 | `query_herb.py` | — | 按中药查本药 + 含此药方剂 | v3.0 计划 |
 | `build_herb_index.py` | — | 构建反向索引 herb_index.jsonl | v3.0 计划 |
 | `redistill_cards.py` | — | 重蒸馏 evidence_cards.jsonl | v3.0 计划 |
+| `extract_books_to_json.py` | — | 将 SQLite 689 本古籍提取为 JSON（每本一个文件） | v3.0 已交付 |
 
 ---
 
