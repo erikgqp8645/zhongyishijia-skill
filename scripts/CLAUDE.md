@@ -29,7 +29,8 @@
 | `query_formula.py` | 286 | 标准化方剂查询（按朝代排序） | v2.0 |
 | `fetch_course_evidence.py` | 81 | 按 chunk_id/card_id 取证据 | v1.0 |
 | `search_md.py` | 78 | 全 markdown 文件检索 | v1.0 |
-| `_source_map.py` | — | 共用朝代/作者映射模块 | v3.0 计划 |
+| `_source_map.py` | — | 共用朝代/作者映射模块 | v2.0 |
+| `_book_map.py` | 120 | BM1→书名映射模块（TypeID桥接）| v1.0 |
 | `query_herb.py` | — | 按中药查本药 + 含此药方剂 | v3.0 计划 |
 | `build_herb_index.py` | — | 构建反向索引 herb_index.jsonl | v3.0 计划 |
 | `redistill_cards.py` | — | 重蒸馏 evidence_cards.jsonl | v3.0 计划 |

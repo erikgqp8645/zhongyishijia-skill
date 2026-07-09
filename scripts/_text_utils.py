@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 
 
@@ -49,12 +50,14 @@ def s(val) -> str:
 
 
 def esc(text: str, limit: int = 0) -> str:
-    """转义 | 和换行符，并在指定长度截断（转义在截断之前执行）
+    """解码 HTML 实体 + 转义 | 和换行符，并在指定长度截断（转义在截断之前执行）
 
+    - 先调用 html.unescape() 解 &amp; &quot; &nbsp; 等 HTML 实体
     - ``|`` → ``｜``（全角竖线，防止 Markdown 表格断行）
     - 换行符 → 空格
-    - 先转义再截断
+    - 先解码实体，再转义，再截断
     """
+    text = html.unescape(text)
     text = re.sub(r"[|\n\r]", " ", text)
     text = text.strip()
     if limit > 0 and len(text) > limit:

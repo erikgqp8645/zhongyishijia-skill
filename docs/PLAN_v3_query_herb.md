@@ -37,7 +37,15 @@ $ python scripts/query_formula.py 细辛
 
 ## 三、实施计划（5 个工作流）
 
-### 工作流 1：抽出共用映射模块 + 扩展 SOURCE_MAP
+> **状态追踪**（2026-07-09 下午）：
+> - 工作流 1 ✅ 已完成：`_source_map.py` 已交付，`SOURCE_MAP` 已扩展至 80+ 条目
+> - 工作流 2 ✅ 已完成：`formula_query.py` 重构完成，向后兼容
+> - 工作流 3 ✅ 已完成：`herb_query.py` 已交付（`scripts/herb_query.py`），`esc()` HTML 实体修复
+> - 工作流 4 ⚠️ 已运行但有编码 bug：生成 28,576 条，`herb` 字段 GBK 乱码；需修复 `safe_utf8()` 改用 GBK 解码
+> - 工作流 5 ⚠️ 已运行但有编码 bug：`dynasty/book` 字段 GBK 乱码 `����`；需修复 `redistill_cards.py` 的解码逻辑
+> - **下一步**：修复 `_text_utils.py` 的 `safe_utf8()` 和 `s()` 函数，改 `bytes.decode("utf-8")` → `bytes.decode("gbk", errors="replace")`，然后重新运行工作流 4 和 5
+
+### 工作流 1：抽出共用映射模块 + 扩展 SOURCE_MAP ✅ 已完成
 
 **新建** `scripts/_source_map.py`：
 - 把 `query_formula.py` 的 `SOURCE_MAP` / `TYPEID_MAP` / `DYNASTY_ORDER` / `identify_source()` / `sort_key()` 抽出
@@ -71,13 +79,13 @@ $ python scripts/query_formula.py 细辛
 "辞典":         ("现代", "《中药大辞典》", "江苏新医学院"),  # 脱敏形式
 ```
 
-### 工作流 2：重构 `query_formula.py`
+### 工作流 2：重构 `query_formula.py` ✅ 已完成
 
 - 顶部删除映射定义，改 `from _source_map import …`
 - `clean_summary()` 中加 `html.unescape()` 解 `&amp;#236;` 等实体
 - 其它逻辑保持不变（向后兼容）
 
-### 工作流 3：新建 `scripts/query_herb.py`（**纯 SQLite**，80ms）
+### 工作流 3：新建 `scripts/herb_query.py`（纯 SQLite，80ms）✅ 已完成
 
 **用法**：
 ```bash
