@@ -112,7 +112,7 @@ cp -r . ~/.openclaw/skills/zhongyishijia-expert-mentor-lineage
 
 ---
 
-## 📋 标准化方剂查询（v2.0 新增）
+## 📋 标准化方剂查询（v2.0 / v2.1 新增）
 
 `scripts/query_formula.py` 是新增的标准化查询工具，当你需要查看某个方剂或条文的 **历代医家论述汇总** 时使用。
 
@@ -125,7 +125,7 @@ python scripts/query_formula.py <关键词>
 ### 示例
 
 ```bash
-# 查询桂枝人参汤
+# 查询桂枝人参汤（默认表格模式）
 python scripts/query_formula.py 桂枝人参汤
 
 # 查询小柴胡汤
@@ -134,9 +134,17 @@ python scripts/query_formula.py 小柴胡汤
 # 查询某个证候/条文
 python scripts/query_formula.py "协热利"
 python scripts/query_formula.py "心下痞硬"
+
+# 生成完整结构化报告（v2.1 新增）
+python scripts/query_formula.py 甘草泻心汤 --full-report
+
+# 指定输出路径
+python scripts/query_formula.py 甘草泻心汤 --full-report -o 我的报告.md
 ```
 
 ### 输出格式
+
+#### 表格模式（默认）
 
 自动输出按 **朝代从古至今排序** 的 Markdown 表格：
 
@@ -150,22 +158,28 @@ python scripts/query_formula.py "心下痞硬"
 | 现代 | 《方剂学》 | 教材 | 【功效】温阳健脾，解表散寒 | synthesis |
 | … | … | … | … | … |
 
-### 内置朝代/作者映射
+#### 完整报告模式（`--full-report`）
 
-脚本内置 **50+ 条 source→(朝代, 著作, 作者)** 映射表，覆盖：
+生成结构化 Markdown 文档，包含：
 
-- **东汉**：张仲景《伤寒论》《金匮要略》
-- **金**：成无己《明理论》
-- **日本江户**：吉益东洞《药征》
-- **明**：张介宾《景岳全书》、方有执《伤寒论条辨》
-- **清**：黄元御、柯琴、吴谦、张璐、汪昂、徐灵胎、张隐庵等十数家
-- **民国**：曹颖甫《伤寒金匮发微》《经方实验录》
-- **现代**：方剂学教材、《中国中医药报》等
+| 章节 | 内容 |
+|:-----|:-----|
+| 一、出处溯源 | 经典原文、组成、煎服法 |
+| 二~十一、朝代论述 | 按朝代展开的历代医家论述 |
+| 十二、病机归纳 | 核心病机、证候要点、治法方解 |
+| 十三、方剂演变 | 泻心汤类方演变关系图 |
+| 十四、临床应用 | 经典适应症、现代对应疾病 |
+| 十五、剂量换算 | 历代剂量参考 |
+| 附录 | 证据索引表 |
+
+报告自动保存为 `{方剂名}历代注解.md`。
 
 ### 可选项
 
 ```bash
 --max-cards 10   # 每个朝代最多输出多少条（默认 10）
+--full-report     # 生成完整结构化 Markdown 报告
+-o <文件>         # 指定完整报告输出路径
 ```
 
 ### 与 search_course_notes.py 的区别
@@ -254,6 +268,14 @@ zhongyishijia-skill/
 ---
 
 ## 📋 更新日志
+
+### v2.1 (2026-07-11)
+
+- **新增** `scripts/formula_query.py --full-report` — 完整报告生成模式
+  - 新增 `templates/formula_report_template.md` 报告模板
+  - 生成结构化 Markdown 文档（出处溯源、朝代论述、病机归纳、方剂演变、临床应用、剂量换算、证据索引）
+  - 报告自动保存为 `{方剂名}历代注解.md`
+- **更新** README 文档，增加 `--full-report` 功能说明
 
 ### v2.0 (2026-07-01)
 
