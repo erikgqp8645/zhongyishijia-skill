@@ -45,10 +45,17 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 TEMPLATE_PATH = SCRIPT_DIR.parent / "templates" / "formula_report_template.md"
 
 
-def clean_summary(text: str, max_len: int = 300) -> str:
+def clean_summary(text: str, max_len: int = 500) -> str:
     """清理摘要: 去 HTML 标签, 解 HTML 实体, 截取合理长度"""
+    # 1. HTML 实体解码
     text = html.unescape(text)
-    text = text.replace("[br]", " ").replace("[b]", "").replace("[/b]", "")
+    # 2. 清除 BBCode 风格标签 [b][/b][i][/i][imgz][/imgz] 等
+    text = re.sub(r"\[/?(?:b|i|imgz|u|color|size|url|del|quote|code|br)\]", "", text, flags=re.IGNORECASE)
+    # 3. 清除 HTML 标签
+    text = re.sub(r"<[^>]+>", "", text)
+    # 4. 清除 [br] 等自定义标签
+    text = text.replace("[br]", " ")
+    # 5. 合并多余空白
     text = re.sub(r"\s+", " ", text).strip()
     if len(text) > max_len:
         return text[:max_len] + "…"
@@ -107,35 +114,33 @@ def load_template() -> str:
 
 
 def generate_dynasty_sections(groups: dict[str, list[dict]], max_per_dynasty: int = 15) -> str:
-    """生成朝代章节内容"""
+    """生成朝代章节内容（按整理版格式）"""
     sections = []
     dynasty_names = {
-        "东汉": "二、东汉时期",
-        "晋": "三、晋代",
-        "南北朝": "四、南北朝时期",
-        "隋": "四、隋代",
-        "唐": "五、唐代",
-        "宋": "六、宋代",
-        "金": "六、金代",
-        "元": "七、元代",
-        "明": "八、明代",
-        "清": "九、清代",
-        "民国": "十、民国时期",
-        "现代": "十一、现代",
-        "日本江户": "六、日本江户时期",
-        "待考": "十二、其他/待考",
+        "东汉": "东汉时期",
+        "晋": "晋代",
+        "南北朝": "南北朝时期",
+        "隋": "隋代",
+        "唐": "唐代",
+        "宋": "宋代",
+        "金": "金代",
+        "元": "元代",
+        "明": "明代",
+        "清": "清代",
+        "民国": "民国时期",
+        "现代": "现代时期",
+        "日本江户": "日本江户时期",
+        "待考": "其他/待考",
     }
 
     dynasty_order_sorted = sorted(groups.keys(), key=lambda d: DYNASTY_ORDER.get(d, 99))
 
-    for idx, dyn in enumerate(dynasty_order_sorted):
+    for dyn in dynasty_order_sorted:
         cards = groups[dyn][:max_per_dynasty]
         if not cards:
             continue
 
         section_title = dynasty_names.get(dyn, f"（{dyn}）")
-        # 计算章节编号
-        section_num = idx + 2  # 从二开始
 
         lines = [f"### {section_title}", ""]
 
@@ -146,11 +151,12 @@ def generate_dynasty_sections(groups: dict[str, list[dict]], max_per_dynasty: in
             by_book[(book, author)].append(card)
 
         for (book, author), book_cards in by_book.items():
-            lines.append(f"#### {book} {author}".strip())
+            author_str = f"（{author}）" if author else ""
+            lines.append(f"#### {book} {author_str}".strip())
             lines.append("")
 
             for card in book_cards[:5]:  # 每本书最多5条
-                summary = clean_summary(card.get("summary", ""), max_len=500)
+                summary = clean_summary(card.get("summary", ""), max_len=600)
                 lines.append(f"> {summary}")
                 lines.append("")
 
@@ -168,7 +174,9 @@ def generate_index_table(groups: dict[str, list[dict]]) -> str:
         for card in groups[dyn]:
             _, book, author = identify_source(card)
             card_id = card.get("card_id", "")
-            rows.append(f"| {dyn} | {book} | {author} | {card_id} |")
+            book_clean = book.replace("|", "｜")
+            author_clean = (author or "").replace("|", "｜")
+            rows.append(f"| {dyn} | {book_clean} | {author_clean} | {card_id} |")
 
     return "\n".join(rows) if rows else "| | | | |"
 
@@ -176,28 +184,40 @@ def generate_index_table(groups: dict[str, list[dict]]) -> str:
 # ── 完整报告生成 ──
 
 def generate_full_report(keyword: str, matches: list[dict]) -> str:
-    """生成完整的 Markdown 报告"""
-    template = load_template()
-    if not template:
-        print("错误: 找不到报告模板文件", file=sys.stderr)
-        return ""
-
-    # 排序
+    """生成完整的 Markdown 报告（整理版格式）"""
     matches.sort(key=sort_key)
-
-    # 分组
     groups = group_by_dynasty(matches)
 
-    # 替换占位符
-    report = template
-    report = report.replace("{formula_name}", keyword)
-    report = report.replace("{card_count}", str(len(matches)))
-    report = report.replace("{time_span}", get_time_span(matches))
-    report = report.replace("{dynasty_sections}", generate_dynasty_sections(groups))
-    report = report.replace("{dynasty_index}", generate_index_table(groups))
-    report = report.replace("{query_date}", date.today().isoformat())
+    lines = []
+    lines.append(f"# {keyword}历代医家注解汇编")
+    lines.append("")
+    lines.append(f"> **数据来源**：中医世家知识库（zysj.com.cn）2012-2014年离线数据")
+    lines.append(f"> **证据卡片数**：{len(matches)}条")
+    lines.append(f"> **时间跨度**：{get_time_span(matches)}")
+    lines.append(f"> **检索字段**：方剂名\"{keyword}\"")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
 
-    return report
+    # 生成朝代章节
+    lines.append(generate_dynasty_sections(groups))
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # 附录：证据索引
+    lines.append("## 附录：证据索引")
+    lines.append("")
+    lines.append("| 朝代 | 著作 | 作者 | card_id |")
+    lines.append("|:----:|:----:|:----:|:--------|")
+    lines.append(generate_index_table(groups))
+    lines.append("")
+    lines.append("---")
+    lines.append(f"*本文档由中医世家知识库（zysj.com.cn）evidence_cards.jsonl 自动检索生成*")
+    lines.append(f"*检索时间：{date.today().isoformat()}*")
+    lines.append(f"*卡片总数：{len(matches)}条*")
+
+    return "\n".join(lines)
 
 
 # ── 主流程 ──
