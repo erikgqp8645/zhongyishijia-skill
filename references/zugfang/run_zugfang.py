@@ -28,6 +28,7 @@ from zugfang_family_parser import parse_zugfang_chapter
 from family_tree import render_family_tree, render_overview
 from evolution_timeline import run_evolution
 from cross_family_compare import render_cross_family_compare
+from zheng_lookup import render_zheng_lookup
 
 
 def main():
@@ -58,6 +59,7 @@ def main():
     skill_group.add_argument("--a", action="store_true", help="Skill A:方族谱查询")
     skill_group.add_argument("--b", action="store_true", help="Skill B:跨书演化时间轴")
     skill_group.add_argument("--c", action="store_true", help="Skill C:跨祖方家族对比(需 2-3 个方)")
+    skill_group.add_argument("--z", action="store_true", help="Skill C.2:病证反查(输入病证关键词,如「寒湿腰痛」「痞证」「咳嗽」)")
     skill_group.add_argument("--both", action="store_true", help="Skill A + Skill B")
     skill_group.add_argument("--all", action="store_true", help="Skill A + Skill B + Skill C")
     parser.add_argument(
@@ -76,6 +78,12 @@ def main():
             print('  python3 run_zugfang.py --c "肾着汤" "五苓散" "桂枝汤"')
             sys.exit(1)
         run_skill_c(all_formulas)
+    elif args.z:
+        if not args.formula:
+            print("⚠️  Skill C.2 病证反查需要病证关键词,如:")
+            print('  python3 run_zugfang.py --z "寒湿腰痛"')
+            sys.exit(1)
+        run_skill_z(args.formula)
     elif args.b:
         run_skill_b(args.formula)
     elif args.both:
@@ -118,6 +126,12 @@ def run_skill_b(formula):
 def run_skill_c(formulas):
     zudfang = parse_zugfang_chapter()
     print(render_cross_family_compare(zudfang, formulas))
+
+
+def run_skill_z(zheng):
+    zudfang = parse_zugfang_chapter()
+    zz_db = str(THIS_DIR.parent / "external" / "zysj.db")
+    print(render_zheng_lookup(zz_db, zudfang, zheng))
 
 
 def run_skill_overview():
