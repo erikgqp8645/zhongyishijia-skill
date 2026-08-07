@@ -267,6 +267,52 @@ def parse_zugfang_chapter(use_cache: bool = True) -> List[Dict]:
             if not method_zh:
                 method_zh = "(治证即变法,无显式加减)"
 
+            # ── 兜底:在 zheng_full 全文搜加减法(更宽松)──
+            # 解决「加减法跨段」(本方用术... 在 L1, 加 X 在 L2) 抓不到的问题
+            # 也支持「术附汤本方用术X附X加X」这种格式
+            if method_zh == "(治证即变法,无显式加减)":
+                zf_search = zheng_raw
+
+                # Strategy A: 找「X汤+加减词」短语
+                positions = []
+                for i in range(len(zf_search) - 1):
+                    if zf_search[i] == "汤":
+                        after = zf_search[i + 1] if i + 1 < len(zf_search) else ""
+                        window = zf_search[i + 1:i + 4]
+                        for kw in ADD_MINUS_WORDS:
+                            if kw in window:
+                                start = i
+                                while start > 0 and zf_search[start - 1] not in "。，,。 \n\r":
+                                    start -= 1
+                                end = zf_search.find("。", i)
+                                if end < 0:
+                                    end = i + 40
+                                candidate = zf_search[start:end].rstrip()
+                                if 4 <= len(candidate) <= 60:
+                                    positions.append(candidate)
+                                break
+
+                # Strategy B: 找「术附汤本方用术X附X加X」这种完整加减段
+                # 模式: 「X汤本方」后到「分温三服」/「为散」/「姜、枣汤」/「日三服」前
+                bonfang_match = re.search(
+                    r"([一-鿿]{2,4}汤)本方用([^)]{4,60}?)(?:分温|为散|姜、枣汤|日三服|上五味|上四味|分三服)",
+                    zf_search,
+                )
+                if bonfang_match:
+                    positions.append(bonfang_match.group(0)[:80])
+
+                # Strategy C: 找「加X一两」「去X」/「合X」/「倍X」等纯加减
+                # 模式:「去/加/合/倍 + 中药名 + 数字」
+                pure_method = re.search(
+                    r"([加减合倍]入?[一-鿿A-Za-z·、]{2,12}(?:各)?[一二三四五六七八九十百千万半\d]*[钱两片枚合剂分字个套杯升]?)",
+                    zf_search,
+                )
+                if pure_method:
+                    positions.append(pure_method.group(0)[:50])
+
+                if positions:
+                    method_zh = max(positions, key=len)[:80]
+
             # 判断是否张璐自有变法
             is_zhanglu = not source and "按" not in zheng_raw[:30]  # type: ignore[assignment] # noqa
 
