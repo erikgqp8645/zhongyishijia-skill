@@ -88,7 +88,7 @@ Active role(s): Expert, Mentor.
 | `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` |
 | `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
 | 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
-| SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数"
+| SQLite 文件找不到 | 明确告知用户"本地知识库未配置"。**首次安装**请下载 v1.2 release asset `zysj.db` (652MB, sha256 `6d348739d0906b742dcbfebf41499664666c518fceb4ba96344d981bdc99753f`, md5 `e1417e712e428452c56174644170725d`) from `https://github.com/erikgqp8645/zhongyishijia-skill/releases/download/v1.2-current-zysj/zysj.db` 并放入 `references/external/zysj.db`。v1.0-raw-sqlite (`20120413mssql.sqlite` 710MB) 仅在需要上游原始 backup 时下载。 |
 
 ## Response Rules
 
