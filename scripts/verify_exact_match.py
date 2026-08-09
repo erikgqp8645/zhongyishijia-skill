@@ -59,7 +59,7 @@ def run_query(keyword: str, *args) -> tuple[int, str, str]:
     return r.returncode, r.stdout, r.stderr
 
 
-def parse_primary_count(stderr: str) -> int | None:
+def parse_primary_count(stderr: str) -> "int | None":
     m = re.search(r"精确匹配.*?: (\d+) 条", stderr)
     return int(m.group(1)) if m else None
 
