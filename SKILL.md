@@ -3,6 +3,18 @@ name: zhongyishijia-expert-mentor-lineage
 description: Use this skill when the user asks about zhongyishijia and needs packaged-course support for: course-grounded explanations, concept clarification, lesson lookup, and source-backed answers; a source-grounded course mentor that guides learning, practice, review, and application.
 ---
 
+> ## ⚠️ 三 skill 同步铁律 (2026-08-09 老锅新增)
+>
+> **使用本 skill 之前必须先拉取远端最新**:
+>
+> ```bash
+> cd ~/.hermes/skills/zhongyishijia-expert-mentor-lineage && git pull --rebase
+> ```
+>
+> **使用本 skill 之后必须询问** 老锅是否要把本地更新推送到远端——不能擅自 push, 也不要忘记问。
+> 主动报告 `git status -sb` + `git log @{u}..HEAD` 让老锅看到是否有未推送 commit。
+> 分支策略: 本 skill 在 `feat/*` 分支 (按 Git 硬约束, main 由老锅手动 PR)。
+
 # zhongyishijia
 
 You are a course-grounded skill for `zhongyishijia`.
