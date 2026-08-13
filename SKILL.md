@@ -88,6 +88,16 @@ Active role(s): Expert, Mentor.
 ### Step 2 — 执行查询
 按上表选择对应脚本执行。
 
+**执行示例（用户问"麻黄升麻汤是什么方？"）：**
+
+```bash
+# 一线执行（首选）
+python scripts/formula_query.py "麻黄升麻汤" --full-report -o /tmp/mahuang.md
+
+# 输出预期: 14 条直接相关卡片（东汉张仲景《伤寒论》+ 14 味组成 + 上热下寒病机 + 历代医家论述）
+# 失败判定: 若返回 0 卡片 → 看 Fallback 规则第 1 行
+```
+
 ### 🔴 CHECKPOINT — 工具选择确认
 如果以上分类无法判断用户意图，**先向用户确认**：
 - "您是想查这个方剂的组成，还是查含这味药的所有方剂？"
@@ -97,6 +107,24 @@ Active role(s): Expert, Mentor.
 - 检查脚本输出是否为空/异常；**如果无结果**，明确告知用户"该症状/药物暂无数据"
 - 输出时：区分直接引用（课程内容）vs 推断（标注 "【推断】"）
 - 🔴 CHECKPOINT — 输出前确认：是否区分了来源与推断？是否保留了不同意见？
+
+**验证示例（用户问"桂枝人参汤"）：**
+
+```bash
+# 1. 执行查询
+output=$(python scripts/formula_query.py "桂枝人参汤" 2>&1)
+count=$(echo "$output" | grep -c "| 东汉 |")
+echo "桂枝人参汤相关卡片数: $count"
+
+# 2. 验证输出
+#    count >= 1 → 成功
+#    count == 0 → 触发 Fallback 第 1 行（text_search）
+#    count 异常大（> 100）→ 触发 Step 4 来源冲突检查
+
+# 3. 输出时标记
+#    引用《伤寒论》原文 → 【原文】
+#    模型对桂枝解表作用的综合 → 【推断】
+```
 
 ### Step 4 — 当来源冲突时
 如果多个来源记录不一致，**不要**自行裁决，报告分歧：
@@ -123,6 +151,22 @@ Active role(s): Expert, Mentor.
 - **古籍全表请求**：先按 `references/coverage_audit.md` 的 jsonl streaming 模式审计，禁止循环 `search_course_notes.py` N 次
 - **缺失判定**：先查 (1) `evidence_cards.jsonl` (281 字符截断) → (2) `references/external/zysj.db` (1.8 亿字符完整) → (3) `/Users/applemima1111/Downloads/data/markdown/` (CHM 镜像)
 - **口语化查询 0 命中**：不报 "no coverage"。`verify_prescription.py` 意图解析保守，fallback 走 SQL LIKE 4 步法，见 `references/zero_hit_fallback_workflow.md` (2026-07-26 验证 "小儿健脾" → 0 脚本命中 → 8+ 方剂)
+
+**口语化 fallback 伪代码（用户问"小儿健脾"）：**
+
+```bash
+# 1. 一线（脚本意图解析）
+result=$(python scripts/verify_prescription.py "小儿健脾" 2>&1)
+hit_count=$(echo "$result" | grep -c "card:")
+
+if [ "$hit_count" = "0" ]; then
+  # 2. fallback 走 SQL LIKE 4 步法（详见 references/zero_hit_fallback_workflow.md）
+  sqlite3 ~/.cache/zhongyishijia/20120413mssql.sqlite <<EOF
+  SELECT MingCheng FROM zysjyj WHERE MingCheng LIKE '%健脾%' LIMIT 10;
+EOF
+  # 输出预期: 肥儿丸系列 8+ 方剂（即使脚本报 0 命中也能查到）
+fi
+```
 - **三层数据架构**：`references/external/zysj.db` (结构化 SQL/命名法严格查找) + `references/books_json/*.json` (689 书/跨书 grep) + `evidence_cards.jsonl` (281 字符截断/自然语言查询) — 三者覆盖**不同**缺口
 
 ### Fallback 规则（三段式：触发条件 / 一线修复 / 仍失败兜底）
