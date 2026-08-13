@@ -102,6 +102,29 @@ Active role(s): Expert, Mentor.
 如果多个来源记录不一致，**不要**自行裁决，报告分歧：
 - "《千金方》和《圣济总录》对本方的记载有出入：《千金方》记为……，《圣济总录》记为……"
 
+### Step 5 — Reading Strategy 高级指引 (v2.0+, 2026-08-13 整合)
+
+下列规则覆盖**单点查询之外**的研究/取证/汇总场景，是 Step 1-4 的延展：
+
+- **渐进式阅读入口**：从 `references/okf/index.md` 开始，按 OKF 节索引 → 单个概念文件
+- **事实查询**：先 `references/course_package.json` → `references/evidence_map.json` → `scripts/search_course_notes.py`
+- **完整性审计**：查询前先看 `references/distillation_audit.md` 或 `.json`，遵守其 `audit_mode` 和 `cross_validation.policy`
+- **应用/咨询类请求**：优先 `references/course_package.json` 的 `methods` / `diagnostics` / `workflows` / `rubrics` / `templates` / `transfer_rules` / `failure_modes` 字段
+- **源/推断区分**：`references/text_distillation/evidence_cards.jsonl` 区分直接源卡片 vs 模型综合
+- **可读引用 vs 精确跨度**：OKF `# Citations` 链接可读，JSON/script 精确查
+- **精确原文取证**：`scripts/fetch_course_evidence.py --chunk-id <id>` 或 `--card-id <id>`
+- **SQLite 烟雾测试**：跑 `scripts/verify_sqlite_coverage.py`（无参数）确认 SQLite fallback 完整
+- **SQLite 覆盖率探针**：`scripts/verify_sqlite_coverage.py <关键词或TypeID>` 探 row 数再下"未覆盖"结论
+- **古籍深挖**（续命汤/桂枝人 本义等）：`scripts/verify_prescription.py "<自然语言查询>"`，4 意图模式（病证/药/why/主治反查）。方法论见 `references/tcm_research_methodology.md`
+- **含 X 药方剂表**：`scripts/formula_table.py <药名> --top N`，5 列（方名/朝代/出处/作者/主治）。10% 启发式源识别，其余 "待考/未识别"。5 陷阱见 `references/formula_metadata_table.md`
+- **历代医家论述**：`scripts/query_formula.py <关键词>` 朝代排序。侯氏黑散专项预制 `references/houshi_heisan_literary_history.md`。8 步流水线见 `references/formula_curation_workflow.md`
+- **多课程包**：`source_course` 和 `source_course_id` 不可丢失，分歧要报告
+- **推论标注**：模型综合 vs 课程内容要明确区分
+- **古籍全表请求**：先按 `references/coverage_audit.md` 的 jsonl streaming 模式审计，禁止循环 `search_course_notes.py` N 次
+- **缺失判定**：先查 (1) `evidence_cards.jsonl` (281 字符截断) → (2) `references/external/zysj.db` (1.8 亿字符完整) → (3) `/Users/applemima1111/Downloads/data/markdown/` (CHM 镜像)
+- **口语化查询 0 命中**：不报 "no coverage"。`verify_prescription.py` 意图解析保守，fallback 走 SQL LIKE 4 步法，见 `references/zero_hit_fallback_workflow.md` (2026-07-26 验证 "小儿健脾" → 0 脚本命中 → 8+ 方剂)
+- **三层数据架构**：`references/external/zysj.db` (结构化 SQL/命名法严格查找) + `references/books_json/*.json` (689 书/跨书 grep) + `evidence_cards.jsonl` (281 字符截断/自然语言查询) — 三者覆盖**不同**缺口
+
 ### Fallback 规则
 | 触发条件 | 修复动作 |
 |---------|---------|
@@ -111,27 +134,6 @@ Active role(s): Expert, Mentor.
 | 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
 | SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数" |
 | **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` |
-
-## Extended Capability Reading Strategy (zugfang-evolution-analysis 整合)
-
-- For progressive reading, start with `references/okf/index.md`, open only the relevant OKF section index, then read individual concept files.
-- For factual questions, start with `references/course_package.json`, then use `references/evidence_map.json` and `scripts/search_course_notes.py` to locate supporting lessons, cards, transcripts, documents, or chunks.
-- Check `references/distillation_audit.md` or `references/distillation_audit.json` before treating a lesson as complete. Respect its `audit_mode` and per-lesson `cross_validation.policy`: cross-source validation is required only when comparable sources are available in auto mode, or when strict audit mode says it is required.
-- For application, consulting, or output-producing requests, prioritize `methods`, `diagnostics`, `workflows`, `rubrics`, `templates`, `transfer_rules`, and `failure_modes` from `references/course_package.json`.
-- Use `references/text_distillation/evidence_cards.jsonl` to separate direct source cards from your own synthesis.
-- Use OKF `# Citations` links for readable provenance, and use JSON/script lookup when exact source spans are required.
-- Use `scripts/fetch_course_evidence.py --chunk-id <chunk_id>` or `--card-id <card_id>` when the answer depends on exact source wording, controversial claims, or high-impact recommendations.
-- Run `scripts/verify_sqlite_coverage.py` (smoke test) to confirm the SQLite fallback is intact (db present, fetch_full works, jsonl vs SQLite char-ratio sensible) — run this before trusting any "complete list" answer that depends on `references/external/zysj.db`.
-- Run `scripts/verify_sqlite_coverage.py <关键词或TypeID>` to probe how many rows in the full SQLite contain a given term across TypeIDs, before reporting "X is not covered". Many "missing" classical texts (辅行诀脏腑用药法要 TypeID=1247, 千金方/外台 TypeID 121/122/168, 伤寒论 TypeID 58/98/103/337, etc.) are fully present.
-- For "ancient formula / 经典方剂 deep dive" queries (e.g. 续命汤用了什么, 桂枝人参汤的本义), use `scripts/verify_prescription.py "<自然语言查询>"` — supports 4 intent modes: 病证 (e.g. "中风的高频药"), 药 (e.g. "麻黄的本草功效"), why-句式 (e.g. "为什么续命汤用麻黄"), 主治反查 (e.g. "破癥坚积聚的方剂"). See `references/tcm_research_methodology.md` for the underlying 4-step methodology.
-- For "含 X 药方剂的出处/作者/朝代/主治" queries (e.g. "列出含细辛的方剂 + 出处 + 作者 + 治什么"), use `scripts/formula_table.py <药名> --top N` — outputs Markdown table with 5 columns (方名/朝代/出处/作者/主治). Heuristic source-detection works for ~10% of formulas (those with 《书名》markers); for the rest, "出处" shows "待考/未识别". See `references/formula_metadata_table.md` for the 5 known-pitfall playbook.
-- For "ancient formula listing" queries (e.g. "X 方剂的历代医家论述"), use `scripts/query_formula.py <关键词>` — outputs 朝代排序的医家论述汇总 from `evidence_cards.jsonl` (281-char truncated cards). For 侯氏黑散 specifically, the full 11-医家 + 8-TypeID-反查 trace is pre-cured at `references/houshi_heisan_literary_history.md` (covers 喻嘉言/柯琴/徐灵胎/陈修园/张璐/费伯雄/唐容川 + 3 论争主方/冷服机制/菊花君药). For the general 8-step curation pipeline (jsonl → TypeID反查 → 11-医家专题 → 本地 + GitHub 双端同步, 含 5 个实战陷阱), see `references/formula_curation_workflow.md`.
-- In multi-course packages, preserve `source_course` and `source_course_id` distinctions. If sources disagree, report the disagreement instead of flattening it into one claim.
-- Label adapted recommendations as inference. Do not present generic model knowledge or unsupported extrapolation as course content.
-- **For "list all formulas / passages of book X" questions**: run a coverage audit first via the `execute_code` jsonl streaming pattern in `references/coverage_audit.md`. Do NOT loop `search_course_notes.py` N times (it will timeout) and do NOT fill gaps with model knowledge presented as course content.
-- **When the answer is incomplete or "missing" in skill data**, check the parallel data sources before reporting "not covered": (1) `references/text_distillation/evidence_cards.jsonl` (281-char truncated cards), (2) `references/external/zysj.db` (in-skill SQLite copy of zysjmssqlbak, full 1.8 亿字符 — default source for `query_formula.py --full-text`), (3) `/Users/applemima1111/Downloads/data/markdown/` (CHM→md mirror, parallel coverage with different gaps). See `references/coverage_audit.md` for the data-source map, the SQLite lookup architecture, and the truncation-repair recipe.
-- **When `verify_prescription.py` returns 0 hits for a colloquial TCM query** (e.g. "小儿健脾", "小儿脾胃虚弱", "治脾胃"), do NOT report "no coverage". The script's intent parser is conservative — colloquial queries bypass its keyword extraction. Direct SQLite lookup on `zysjyj.MingCheng LIKE '%X%'` is the working fallback. See `references/zero_hit_fallback_workflow.md` for the verified 4-step recipe (tested 2026-07-26 with "小儿健脾" → 0 script hits → 8+ formulas via SQL LIKE on 肥儿丸 series).
-- **3-data-layer architecture (learned from 2026-07-26 install)**: `references/external/zysj.db` (structured SQL, best for 命名法 strict lookup) + `references/books_json/*.json` (689 books, full content per book, best for cross-book grep) + `references/text_distillation/evidence_cards.jsonl` (281-char truncated cards, best for natural-language query). They cover DIFFERENT gaps; query the right layer for the right question.
 
 ## Response Rules
 

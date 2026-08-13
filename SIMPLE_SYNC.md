@@ -2,8 +2,10 @@
 name: simple_sync
 purpose: 3-machine (单位 Mac / 家里 Mac / 家里 Windows) direct-main-branch workflow for zhongyishijia-skill — simpler than worktree, uses git pull --rebase + direct push to main
 trigger: 「多机器同步」「回家」「出门」「push check」「before_leaving」「3 机方案」「simplified」
-date_verified: 2026-08-10
+date_verified: 2026-08-13
 replaces: WORKTREE_GUIDE.md (2026-08-10 v2 rolled back — worktree ambiguous skill loader conflict)
+changelog:
+  - 2026-08-13: 大整合工程 — 4 个 feat 分支合并入 main, 新增「问题 6 多 feat 分支堆积」SOP, 详见 CHANGELOG_2026-08-13.md
 machines:
   - id: office-mac
     hostname: Mac-mini.local (单位)
@@ -302,6 +304,69 @@ git log --oneline -5                 # 看本地最新 5 个 commit
 
 如果本地落后:`git pull --rebase`。
 如果本地领先(说明本地有未 push):`git push`。
+
+### 问题 6:多 feat 分支堆积(2026-08-13 实战固化)
+
+**症状**:远端有 4+ 个 feat 分支都没合并,本地还有一堆 untracked 文件,合并策略不明。
+
+**场景**:项目阶段性整合时（如每月一次）。
+
+**SOP**(8 步，1-2 小时):
+
+```bash
+# 1. 摸底 — 列出所有远端分支和 ahead/behind 数
+git branch -r | grep -v HEAD
+git log --oneline origin/main..origin/<branch>      # ahead commits
+git rev-list --count origin/main..origin/<branch>   # ahead 数
+git rev-list --count origin/<branch>..origin/main   # behind 数
+
+# 2. 冲突矩阵 — 找出哪些分支都改了同一文件
+mkdir -p /tmp/diff_data
+for b in $(git branch -r | grep -v HEAD | sed 's|origin/||'); do
+  safe=$(echo "$b" | tr '/' '_')
+  git diff --name-only origin/main origin/$b | sort -u > /tmp/diff_data/$safe.txt
+done
+comm -12 /tmp/diff_data/<branch1>.txt /tmp/diff_data/<branch2>.txt   # 交集
+
+# 3. 拍板合并方案 — 推荐「集成优先」(已被取代的精简版丢弃)
+#    关键判断点：
+#    a) "已 merge 其他分支"的分支（双 ahead merge commit）→ 优先
+#    b) 与其他分支 0 行 SKILL.md 差异的「过时精简版」→ 丢弃
+#    c) 独立 Skill 包的分支 → 作为独立 merge
+
+# 4. 打 tag 保护
+git tag -a pre-merge-$(date +%Y-%m-%d) -m "合并前快照"
+
+# 5. 顺序合并（每个 merge 单独走冲突解决）
+git merge origin/<branch1> --no-ff -m "merge: integrate <branch1>"
+# 解决冲突（特别是 SKILL.md，必须手工 review）：
+# - 看 git status 标红的 UU 文件
+# - grep -nE "^(<<<<<<<|=======|>>>>>>>)" <file> 找冲突位置
+# - 用 patch 工具或 vim 手动编辑
+git add <冲突解决的文件>
+git commit --no-edit
+# 重复直到所有目标分支合并完
+
+# 6. 提交本地独有文件（与远端分支互补的 untracked）
+git add <本地 untracked 文件>
+git commit -m "chore: merge local untracked <description>"
+
+# 7. 删除远端已合并分支（二次确认后）
+git branch -r --merged main                          # 确认全在合并列表里
+git push origin --delete <branch1> <branch2> ...   # 网络不稳时分批
+
+# 8. 推送新 main
+git push origin main
+git rev-list --count origin/main..main              # 应为 0
+```
+
+**陷阱**：
+- ⚠️ **不要自动 merge SKILL.md** — `<<<<<<<` 块必须手工逐行 review
+- ⚠️ 「未合并」≠「独有」— 用 `git diff --name-only main origin/<branch>` 看「独有」文件其实在 main 上都有（只是字面略不同）
+- ⚠️ 删除远端分支前用 `git branch -r --merged` 二次确认
+- ⚠️ 保留 pre-merge tag — `git reset --hard pre-merge-<日期>` 随时回滚
+
+**实测案例**：2026-08-13 完成 4 分支整合：double-fetch-skill (含 ultimate-report + main 同步) + zugfang-evolution-analysis + 12 个本地独有文件 → 14 commits ahead → 单 main 分支。详见 `CHANGELOG_2026-08-13.md`。
 
 ─────────────────────────────────────────────────────
 
