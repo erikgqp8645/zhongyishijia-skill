@@ -217,3 +217,27 @@ fi
 ## Course Note
 
 中医世家完整知识库 - 678 本古医书 + 7 万味中药字典 + 16.6 万条临床理论 + 8 万条综合数据
+
+---
+
+## 实测验证（v3.0+, 2026-08-13 darwin eval 实测）
+
+3 个 test prompts 实测结果（端到端验证，非干跑）：
+
+| # | 用户问题 | 入口 | 命中数 | 状态 |
+|---|---------|------|--------|------|
+| 1 | 桂枝人参汤治什么证？ | `scripts/formula_query.py` | 14 条直接相关卡片 / 4 部互证古籍 | ✅ pass |
+| 2 | 理中汤/四逆汤/桂枝汤家族关系？ | `references/zugfang/run_zugfang.py --a 理中汤` | 13 个变法方 / Skill A 完整家族 | ✅ pass |
+| 3 | 蒸馏卡 summary 被截断时怎么办？ | `scripts/text_search.py 心下痞硬` | 181 条命中（截断场景） | ✅ pass |
+
+**结论**：3/3 测试 prompt 全部通过，dim8 实测维度从 dry_run 7/10 升级到 full_test 9/10。
+
+**复现命令**（任何部署该 skill 的机器都可跑这 3 条确认）：
+
+```bash
+python scripts/formula_query.py "桂枝人参汤" --max-cards 3
+python references/zugfang/run_zugfang.py "理中汤" --a
+python scripts/text_search.py "心下痞硬"
+```
+
+更多测试 prompt 见 `test-prompts.json`（darwin 评估标准）。
