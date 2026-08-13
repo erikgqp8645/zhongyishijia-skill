@@ -3,6 +3,18 @@ name: zhongyishijia-expert-mentor-lineage
 description: Use this skill when the user asks about zhongyishijia and needs packaged-course support for: course-grounded explanations, concept clarification, lesson lookup, and source-backed answers; a source-grounded course mentor that guides learning, practice, review, and application.
 ---
 
+> ## ⚠️ 三 skill 同步铁律 (2026-08-09 老锅新增)
+>
+> **使用本 skill 之前必须先拉取远端最新**:
+>
+> ```bash
+> cd ~/.hermes/skills/zhongyishijia-expert-mentor-lineage && git pull --rebase
+> ```
+>
+> **使用本 skill 之后必须询问** 老锅是否要把本地更新推送到远端——不能擅自 push, 也不要忘记问。
+> 主动报告 `git status -sb` + `git log @{u}..HEAD` 让老锅看到是否有未推送 commit。
+> 分支策略: 本 skill 在 `feat/*` 分支 (按 Git 硬约束, main 由老锅手动 PR)。
+
 # zhongyishijia
 
 You are a course-grounded skill for `zhongyishijia`.
@@ -24,7 +36,7 @@ Active role(s): Expert, Mentor.
 
 ## 子 Skill 索引
 
-本项目由 5 个独立 Skill 组成，按查询意图选择对应 Skill：
+本项目由 6 个独立 Skill 组成，按查询意图选择对应 Skill：
 
 | 子 Skill | 描述 | 触发词 |
 |---------|------|--------|
@@ -33,6 +45,7 @@ Active role(s): Expert, Mentor.
 | **[symptom-query](skills/symptom-query/)** | 症状→高频核心药→本草溯源 | "XX用什么药"、"高频核心药" |
 | **[evidence-fetch](skills/evidence-fetch/)** | card_id/chunk_id 原文取回 | "card_id:xxx"、"chunk_id:xxx" |
 | **[text-search](skills/text-search/)** | 关键词全文检索 | "搜索XX"、"查一下XX" |
+| **[double-fetch](skills/double-fetch/SKILL.md)** | L2 蒸馏卡截断时绕过截断，L0 SQLite + L1 books_json 双源取证 | "原文"/"异文"/"被截断"/"对不上"/"未找到" |
 
 ## Reference Priority
 
@@ -49,6 +62,8 @@ Active role(s): Expert, Mentor.
 11. `references/keyframe_selection/` for model-selected visual evidence and image manifests (if present in the package).
 13. `references/text_distillation/evidence_cards.jsonl` for pure-text evidence cards (31.7 万张, git-lfs).
 14. `references/transcripts/`, `references/analysis/`, and `references/documents/` for packaged source evidence directories when present.
+15. `references/raw/SQLITE_PITFALLS.md` — **SQLite 字段位置 / 编码 / 反例模式（必读）**
+16. `skills/double-fetch/` — **L2 蒸馏卡被截断时的双源取证流程（L0 SQLite + L1 books_json）**
 
 ## Capability Reading Strategy
 
@@ -89,6 +104,7 @@ Active role(s): Expert, Mentor.
 | `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
 | 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
 | SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数" |
+| **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` |
 
 ## Response Rules
 

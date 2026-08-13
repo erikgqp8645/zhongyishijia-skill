@@ -39,3 +39,12 @@ reasonix.toml
 references/raw/*.sqlite
 references/raw/*.db
 references/raw/*.sqlite3
+
+# LFS-tracked data (远端走 LFS, 本地 LFS server 失效时是真实数据副本, 不应再入 git)
+# 已通过 release 下载: 不重复追踪
+references/books_json/
+references/text_distillation/evidence_cards.jsonl
+references/raw/20120413mssql.sqlite
+
+# 根目录误放的 books_json 副本(已删,但忽略未来重出)
+/books_json/
