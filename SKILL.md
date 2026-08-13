@@ -125,15 +125,27 @@ Active role(s): Expert, Mentor.
 - **口语化查询 0 命中**：不报 "no coverage"。`verify_prescription.py` 意图解析保守，fallback 走 SQL LIKE 4 步法，见 `references/zero_hit_fallback_workflow.md` (2026-07-26 验证 "小儿健脾" → 0 脚本命中 → 8+ 方剂)
 - **三层数据架构**：`references/external/zysj.db` (结构化 SQL/命名法严格查找) + `references/books_json/*.json` (689 书/跨书 grep) + `evidence_cards.jsonl` (281 字符截断/自然语言查询) — 三者覆盖**不同**缺口
 
-### Fallback 规则
-| 触发条件 | 修复动作 |
-|---------|---------|
-| `formula_query.py` 无结果 | 尝试 `text_search.py <方剂名>` 全文检索 |
-| `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` |
-| `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
-| 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
-| SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数" |
-| **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` |
+### Fallback 规则（三段式：触发条件 / 一线修复 / 仍失败兜底）
+
+| 触发条件 | 一线修复 | 仍失败兜底 |
+|---------|---------|-----------|
+| `formula_query.py` 无结果 | 尝试 `text_search.py <方剂名>` 全文检索 | 告知"该方剂暂未收入，参考邻近类方或查书籍原文" |
+| `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` | 告知"该药可能为别名或非主流药，请提供《本草》原文出处" |
+| `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" | 改用 `verify_prescription.py "<口语化症状>"` 重试，或直接 SQLite LIKE 查 `zysjyj.MingCheng` |
+| `text_search.py` 也无结果 | 切换 `references/zugfang/run_zugfang.py --z <证候>` 查祖方变法方家族 | 明确告知用户"本地数据库未覆盖此方/药/证"，列已查过的 3 个数据层 |
+| 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 | 重新跑 `git lfs pull` 或检查 `references/install-path.md` 部署步骤 |
+| SQLite 文件找不到 | 明确告知用户"本地 SQLite 未配置" | 设置 `ZHONGYISHIJIA_SQLITE` 环境变量，或下载 `references/external/zysj.db` (710MB) |
+| **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` | 返回时标注"L1 books_json / L0 SQLite 取证"作为可信度依据 |
+| **查询结果含"待考"字段过多** | 检查是否命中"启发式源源识别 ≈10%"边界 | 改用 `scripts/verify_exact_match.py` 精确匹配验证 |
+| **口语化症状（如"小儿健脾"）0 命中** | 不报 "no coverage"，直接走 SQL LIKE | 见 `references/zero_hit_fallback_workflow.md` 4 步法 |
+| **多源记载冲突** | 报告分歧，不裁决 | 列 2-3 部互证古籍原文 + 时间线，标"待 Erik 拍板" |
+
+### 失败模式编码规则
+
+每条 fallback 必须满足：
+1. **触发条件具体可观测**（不能写"如果失败"——必须写"如果 X 工具返回空 / 抛出 Z 错误"）
+2. **一线修复是最快恢复路径**（不是"建议考虑"——是"立即执行 Y"）
+3. **仍失败兜底有用户可读的失败消息**（不能 silent——必须明确告诉用户"此路不通，请尝试 A 或 B"）
 
 ## Response Rules
 
