@@ -69,7 +69,8 @@ Active role(s): Expert, Mentor.
 18. `references/known_pitfalls.md` for the 10 cross-cutting Python/Regex/SQL pitfalls encountered in this codebase (Python `or` priority, `re.search` greediness, missing `·` and `○` in char classes, SQL ORDER BY being dominated by 1.XXX prefixes, etc.) — **read this before extending any of the Python scripts**.
 19. `references/install_workflow.md` for the GitHub release install workflow — 3 release assets (evidence_cards.jsonl 269MB / books_json.tar.gz 75MB / zysj.db 710MB), which to download when, and the 3-data-layer architecture (jsonl + books_json/ + zysj.db).
 20. `references/zero_hit_fallback_workflow.md` for the colloquial-query → direct SQLite fallback when `verify_prescription.py` returns 0 hits — verified 2026-07-26 with "小儿健脾" (script 0 hit, SQL direct 8+ formulas). Essential for any colloquial TCM symptom query.
-21. `references/zugfang/README.md` for 「祖方演化分析」附属 skill 包(2026-08-06 新增) — 张璐《张氏医通》卷十六·祖方 36 个方祖 + 384 个变法方的家族结构化解析。两个子能力:Skill A 「方族谱」(家族 + 加减法查询,触发「X 是哪个祖方」「X 变法方家族」) 与 Skill B 「跨书演化时间轴」(6 源拼接,触发「X 演化」「X 后世发展」「跨书考证」)。共享 `zugfang_family_parser.py` 解析器 + `_parsed_cache.json` 缓存(180KB)。
+21. `references/zugfang/README.md` for 「祖方演化分析」附属 skill 包(2026-08-06 新增) — 张璐《张氏医通》卷十六·祖方 36 个方祖 + 384 个变法方的家族结构化解析。两个子能力: Skill A 「方族谱」(家族 + 加减法查询,触发「X 是哪个祖方」「X 变法方家族」) 与 Skill B 「跨书演化时间轴」(6 源拼接,触发「X 演化」「X 后世发展」「跨书考证」)。共享 `zugfang_family_parser.py` 解析器 + `_parsed_cache.json` 缓存(180KB)。
+22. `references/xiaoluo_dan_literary_history.md` for 「消瘰丸/消瘰丹/消疠丸」专题(2026-08-13 新增) — 4 医家化裁与历代传承专题: 程国彭《医学心悟》1732 创方(3 味) → 清 14 味变方(夏枯草/海藻/消石加重软坚) → 张锡纯《医学衷中参西录》化裁方(首次引入活血化瘀三棱/莪术/血竭/乳香/没药 + 黄耆护胃 + 龙胆草清肝胆) → 周次青现代汤剂(加三黄泻火 + 酸枣仁/浮小麦止汗)。含临床决策算法 + 剂量现代化建议 + 证据索引 7 条。触发词: 「消瘰丸」「消瘰丹」「消疠丸」「瘰疬方」「内消瘰疬丸」「淋巴结核方」。
 
 ## Capability Reading Strategy
 
