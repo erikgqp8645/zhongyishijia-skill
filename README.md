@@ -342,6 +342,8 @@ zhongyishijia-skill/
 │   ├── houshi_heisan_literary_history.md # 侯氏黑散历代注解 (11 医家)
 │   ├── xiongbi_jiu_literary_history.md   # 胸痹第九历代注解 (17 医家)
 │   ├── xiaoluo_dan_literary_history.md   # 消瘰丸/消瘰丹/消疠丸 4 医家化裁 (15KB)
+│   ├── yantong_literary_history.md       # 咽痛历代医家论述 (24 条/战国-民国, 32KB)
+│   ├── tanpi_zhibian_yanshuo.md          # 痰癖治法演变 (28 朝代/138 TypeID/379 原文, 24KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -432,6 +434,16 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 ---
 
 ## 📋 更新日志
+
+### v3.1 (2026-08-17) — 多分支合并 + 2 个新专题补登记
+
+- **合并** `darwin-eval-2026-08-13` (7 commits) + `feat/yantong-literary-history` (3 commits) 到 `main`，冲突矩阵 0，git 自动合并干净
+- **新增** `references/yantong_literary_history.md` — 咽痛历代医家论述（24 条 / 战国《灵枢》→ 民国·张锡纯 / 32KB / 380 行）
+- **新增** `references/tanpi_zhibian_yanshuo.md` — 痰癖治法演变全库溯源（28 朝代 / 138 TypeID / 379 条原文 / 24KB / 392 行）
+- **修改** `.gitignore` 排除 `references/external/*.db` 占位 SQLite
+- **修改** `SKILL.md` Reference Priority 22→24（追加 yantong + tanpi 编号）
+- **修改** `README.md` 仓库结构树追加 2 行 + v3.1 变更记录
+- **沿用** SIMPLE_SYNC.md 8 步大整合 SOP（tag pre-merge → merge --no-ff → drift 检测 → push）
 
 ### v3.0 (2026-08-13) — 大整合工程
 
