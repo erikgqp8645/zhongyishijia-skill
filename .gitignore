@@ -39,6 +39,8 @@ reasonix.toml
 references/raw/*.sqlite
 references/raw/*.db
 references/raw/*.sqlite3
+# External/ wrapper 也只是占位符, 真实 SQLite 走 ~/.cache/zhongyishijia/ symlink
+references/external/*.db
 
 # LFS-tracked data (远端走 LFS, 本地 LFS server 失效时是真实数据副本, 不应再入 git)
 # 已通过 release 下载: 不重复追踪
