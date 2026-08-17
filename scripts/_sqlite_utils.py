@@ -23,13 +23,14 @@ def setup_windows_stdout() -> None:
 
 
 def find_sqlite_path(sqlite_arg: str | None = None) -> Path:
-    """三级查找 SQLite 文件路径
+    """四级查找 SQLite 文件路径
 
     优先级：
     1. CLI 显式参数
     2. ~/.cache/zhongyishijia/20120413mssql.sqlite
     3. ~/.local/share/zhongyishijia/20120413mssql.sqlite
-    4. <repo>/references/raw/20120413mssql.sqlite
+    4. <repo>/references/external/zysj.db  ← 标准部署入口（脚本仓库内置）
+    5. <repo>/references/raw/20120413mssql.sqlite
     """
     candidates: list[Path] = []
     if sqlite_arg:
@@ -37,6 +38,7 @@ def find_sqlite_path(sqlite_arg: str | None = None) -> Path:
     candidates.extend([
         Path.home() / ".cache" / "zhongyishijia" / "20120413mssql.sqlite",
         Path.home() / ".local" / "share" / "zhongyishijia" / "20120413mssql.sqlite",
+        Path(__file__).resolve().parent.parent / "references" / "external" / "zysj.db",
         Path(__file__).resolve().parent.parent / "references" / "raw" / "20120413mssql.sqlite",
     ])
     for c in candidates:

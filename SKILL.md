@@ -68,11 +68,13 @@ Active role(s): Expert, Mentor.
 17. `references/natural_language_query.md` for the 5 意图解析模式 (病证/药/why/方剂反查/主治反查) — all pattern-based, no LLM. Critical for understanding how user questions get routed to the right backend workflow.
 18. `references/known_pitfalls.md` for the 10 cross-cutting Python/Regex/SQL pitfalls encountered in this codebase (Python `or` priority, `re.search` greediness, missing `·` and `○` in char classes, SQL ORDER BY being dominated by 1.XXX prefixes, etc.) — **read this before extending any of the Python scripts**.
 19. `references/install_workflow.md` for the GitHub release install workflow — 3 release assets (evidence_cards.jsonl 269MB / books_json.tar.gz 75MB / zysj.db 710MB), which to download when, and the 3-data-layer architecture (jsonl + books_json/ + zysj.db).
+19a. `references/sqlite_deployment_recipe.md` for the **end-to-end SQLite 部署验证 SOP** (2026-08-17 实测固化) — 从 GitHub release 下载 `zysj.db` → 校验 SHA256 + 4 表行数 + GBK 编码 → 替换 `<repo>/references/external/zysj.db`（仓库内 SQLite 永远叫这个名字，0 字节占位符替换为 711MB 完整版）→ 跑 `find_sqlite_path()` 四级查找确认 → 跑 `python3 scripts/symptom_query.py "痰癖"` 烟雾测试必须命中 ≥1 张方剂。**Erik 偏好：保持 `zysj.db` 文件名不变**（所有现有脚本/文档引用此名，迁移时改脚本而非改名）。
 20. `references/zero_hit_fallback_workflow.md` for the colloquial-query → direct SQLite fallback when `verify_prescription.py` returns 0 hits — verified 2026-07-26 with "小儿健脾" (script 0 hit, SQL direct 8+ formulas). Essential for any colloquial TCM symptom query.
 21. `references/zugfang/README.md` for 「祖方演化分析」附属 skill 包(2026-08-06 新增) — 张璐《张氏医通》卷十六·祖方 36 个方祖 + 384 个变法方的家族结构化解析。两个子能力: Skill A 「方族谱」(家族 + 加减法查询,触发「X 是哪个祖方」「X 变法方家族」) 与 Skill B 「跨书演化时间轴」(6 源拼接,触发「X 演化」「X 后世发展」「跨书考证」)。共享 `zugfang_family_parser.py` 解析器 + `_parsed_cache.json` 缓存(180KB)。
 22. `references/xiaoluo_dan_literary_history.md` for 「消瘰丸/消瘰丹/消疠丸」专题(2026-08-13 新增) — 4 医家化裁与历代传承专题: 程国彭《医学心悟》1732 创方(3 味) → 清 14 味变方(夏枯草/海藻/消石加重软坚) → 张锡纯《医学衷中参西录》化裁方(首次引入活血化瘀三棱/莪术/血竭/乳香/没药 + 黄耆护胃 + 龙胆草清肝胆) → 周次青现代汤剂(加三黄泻火 + 酸枣仁/浮小麦止汗)。含临床决策算法 + 剂量现代化建议 + 证据索引 7 条。触发词: 「消瘰丸」「消瘰丹」「消疠丸」「瘰疬方」「内消瘰疬丸」「淋巴结核方」。
 23. `references/yantong_literary_history.md` for 「咽痛」专题(2026-08-17 新增) — 24 条证据覆盖战国《灵枢》→ 东汉《伤寒论》→ 清·黄元御《伤寒说意》/吕震名《伤寒寻源》/王泰林《退思集类方歌注》/陈念祖方歌/吴谦《医宗金鉴》/冯兆张《冯氏锦囊秘录》→ 民国·张锡纯。核心心法:**咽痛辨证的核心不在咽喉局部,而在少阴水火、阴阳格拒、上下热寒** — 5 经方(猪肤汤/甘草汤/桔梗汤/苦酒汤/半夏散)+ 通脉四逆汤/麻黄升麻汤 + 1 经筋(灵枢第八)构成完整病机骨架。触发词: 「咽痛」「少阴咽痛」「喉痹」「咽干」「咽痛辨证」「猪肤汤」「苦酒汤」「半夏散」「甘草汤」「桔梗汤」「通脉四逆汤」「麻黄升麻汤」。
 24. `references/tanpi_zhibian_yanshuo.md` for 「痰癖治法演变」专题(2026-08-17 新增) — 28 朝代 / 138 TypeID / 379 条原文全库溯源。关键史实:**「痰癖」作为独立病名始于隋·巢元方《诸病源候论》**,东汉张仲景《金匮》只有「痰饮/淡饮/留饮」无「癖」字。核心心法:**病名从无到有、治法从攻到补、用药从峻到缓** — 东汉仲景温阳化饮 → 魏晋陶弘景立巴豆/朴消/荛花峻下三药 → 隋·巢元方定型 → 唐·孙思邈攻补兼施 → 宋·陈言开「风寒暑湿皆生痰」 → 元·李东垣转「治痰从脾胃」 → 明·王肯堂/张介宾定临床诊断金标准 → 清·张璐/汪昂完成临床手册标准化。触发词: 「痰癖」「痰饮」「淡饮」「留饮」「痰癖候」「痰癖治法」。
+25. `references/distillation_workflow.md` for 「深度蒸馏工作流」(2026-08-17 新增) — 当 `references/*.md` 专题中存在「未充分展开」章节（body < 200 字）时，按 **5 段展开模板 + 双编码修复 SOP + UUIDv7 思源严格模式** 升级为带原文 ID 的精微版。核心心法:**SQL 全库溯源 + 5 段模板 + 朝代承接叙事** = 把精简版朝代章节升级为精微版。3 阶段 9 步流程 + 10 大陷阱清单 + 思源严格模式 5 步。实战案例：tanpi 文档 10 节展开（22KB → 80KB / +260%）。触发词: 「展开 XX 节」「补全 XX 章节」「深度蒸馏 XX」「tanpi 全展开」。
 
 ## Capability Reading Strategy
 
@@ -181,11 +183,13 @@ fi
 | `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" | 改用 `verify_prescription.py "<口语化症状>"` 重试，或直接 SQLite LIKE 查 `zysjyj.MingCheng` |
 | `text_search.py` 也无结果 | 切换 `references/zugfang/run_zugfang.py --z <证候>` 查祖方变法方家族 | 明确告知用户"本地数据库未覆盖此方/药/证"，列已查过的 3 个数据层 |
 | 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 | 重新跑 `git lfs pull` 或检查 `references/install-path.md` 部署步骤 |
-| SQLite 文件找不到 | 明确告知用户"本地 SQLite 未配置" | 设置 `ZHONGYISHIJIA_SQLITE` 环境变量，或下载 `references/external/zysj.db` (710MB) |
+| SQLite 文件找不到 | 明确告知用户"本地 SQLite 未配置" | **四级查找自动命中**：CLI `--sqlite` 参数 → `ZHONGYISHIJIA_SQLITE` 环境变量 → `~/.cache/zhongyishijia/20120413mssql.sqlite` → `<repo>/references/external/zysj.db`（**标准部署入口，gitignored 但本地保留**）→ `<repo>/references/raw/20120413mssql.sqlite`。命名约定：仓库内 SQLite 永远叫 `zysj.db`，脚本自动在四级路径中找；详见 `references/sqlite_deployment_recipe.md` |
 | **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` | 返回时标注"L1 books_json / L0 SQLite 取证"作为可信度依据 |
 | **查询结果含"待考"字段过多** | 检查是否命中"启发式源源识别 ≈10%"边界 | 改用 `scripts/verify_exact_match.py` 精确匹配验证 |
 | **口语化症状（如"小儿健脾"）0 命中** | 不报 "no coverage"，直接走 SQL LIKE | 见 `references/zero_hit_fallback_workflow.md` 4 步法 |
 | **多源记载冲突** | 报告分歧，不裁决 | 列 2-3 部互证古籍原文 + 时间线，标"待 Erik 拍板" |
+| **`verify_prescription.py` 报 "no such table: zysjyj"** | 立即跑 `find_sqlite_path()` 验证 SQLite 是否部署；连不上表 = 文件是 0 字节占位符或字段名/编码错 | 走 `references/sqlite_deployment_recipe.md` 重新部署；连得上但仍报 `no such table` = 脚本硬编码路径 bug，参照 `scripts/verify_prescription.py` 改造为四级查找 |
+| **`verify_prescription.py` 步骤 1 「多方归纳」命中 0 首但 symptom_query 命中 N 首** | **字段错位 bug**：前者查 `zysjyj.ChuFang`，后者查 `zysjyj.GongNengZZ + TypeID=39`。病证/症状关键词通常只出现在「功能主治」列 | 把 `_fetch_prescriptions()` 改为 `SELECT ... FROM zysjyj WHERE TypeID=39 AND GongNengZZ LIKE ?` —— 症状用方剂库时应按 TypeID=39 + GongNengZZ 反查 |
 
 ### 失败模式编码规则
 

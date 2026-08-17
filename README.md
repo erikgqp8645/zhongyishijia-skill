@@ -343,7 +343,8 @@ zhongyishijia-skill/
 │   ├── xiongbi_jiu_literary_history.md   # 胸痹第九历代注解 (17 医家)
 │   ├── xiaoluo_dan_literary_history.md   # 消瘰丸/消瘰丹/消疠丸 4 医家化裁 (15KB)
 │   ├── yantong_literary_history.md       # 咽痛历代医家论述 (24 条/战国-民国, 32KB)
-│   ├── tanpi_zhibian_yanshuo.md          # 痰癖治法演变 (28 朝代/138 TypeID/379 原文, 24KB)
+│   ├── tanpi_zhibian_yanshuo.md          # 痰癖治法演变全库溯源 (28 朝代/138 TypeID/379 原文/924 行/80KB, 10 节展开)
+│   ├── distillation_workflow.md         # 深度蒸馏工作流 (3 阶段 9 步 + 5 段模板 + 双编码修复 SOP, 17KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -444,6 +445,29 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 - **修改** `SKILL.md` Reference Priority 22→24（追加 yantong + tanpi 编号）
 - **修改** `README.md` 仓库结构树追加 2 行 + v3.1 变更记录
 - **沿用** SIMPLE_SYNC.md 8 步大整合 SOP（tag pre-merge → merge --no-ff → drift 检测 → push）
+
+### v3.2 (2026-08-17) — 痰癖文档 10 节全部展开 + 思源同步
+
+- **展开** `references/tanpi_zhibian_yanshuo.md` 10 个未充分章节（按 ④ 孙思邇 532 字模板）：
+  - ⑪ 宋·《圣济总录》（TypeID=122）—— 11 条原文 + 4 首方剂 + 病机 4 要点 + 承接 ⑨→⑩→⑫
+  - ⑫ 元·东垣《脾胃论》（TypeID=877）—— 3 条药性赋 + 朴硝/芒硝/莱菔精微 + 攻→补转向
+  - ⑬ 元·王好古《此事难知》（TypeID=245）—— 4 条药论 + 脏腑辨证精微（气胸膈/血心腹）
+  - ⑰ 明·龚氏父子（TypeID=572, 613）—— 4 条原文 + 脾肾双补论 + 6 味核心药
+  - ⑲ 清·汪昂《本草备要》/《医方集解》（TypeID=246, 1374, 1375）—— 8+4 条原文 + 半夏天麻白术汤 + 无痰不作疟论
+  - ㉑ 清·陈士铎《本草秘录》（TypeID=624）—— 3 条药论 + 奇方思路 + 岭南地理病机论 + 天地相救论
+  - ㉓ 清·凌奂《本草害利》（TypeID=775）—— 3 条药害论（首创「药害/药利」双轨论）
+  - ㉔ 清·沈金鳌《杂病源流犀烛》（TypeID=720）—— 产后痰癖总治则（先补后攻）
+  - ㉕ 清·三书（姚澜 TypeID=764 / 严西亭 TypeID=689 / 黄宫绣 TypeID=619）—— 严西亭 12 经痰辨证 + 黄宫绣积/聚辨证 + 五饮论
+  - ㉘ 日·丹波元坚《金匮述义》（TypeID=483）—— 痰 vs 饮金标准 + 积/聚/瘕/癖/结五证分类
+  - 转折 5（清→日 朝代演变）—— 4 维度转折标志表 + 中日汇通
+- **文档统计**：22KB → 80KB（+260%），392 → 924 行（+136%），10509 → 37016 字符（+252%）
+- **数据库**：本地 `references/external/zysj.db` 替换 0 字节占位为 711MB 完整 SQLite（4 表 / 317,580 卡 / 70350 方剂 / 166423 临床理论）
+- **脚本修复**：`scripts/_sqlite_utils.py` 三级查找 → 四级查找（加 `references/external/zysj.db` 兜底入口）；`scripts/verify_prescription.py` 删除硬编码 `_DB_PATH`，改用 `find_sqlite_path()` + 加 `--sqlite` 参数 + GBK 解码
+- **思源同步**：自动 `fs.write` 到 `/医林独箫斋/总结/痰癖治法演变`（首次 131 块 / 10474 字符 / UUIDv7 requestId 严格模式 / Write Safety Guaranteed）
+- **新发现陷阱**（已固化）：`zysjyj` = GBK，`zysjllsj` = UTF-8 — 不能 `text_factory = lambda b: b.decode("gbk")` 一刀切
+- **修改** `README.md` tanpi 行体积（24KB → 80KB/924 行）+ 追加 v3.2 变更记录
+- **新增** `references/distillation_workflow.md` — 深度蒸馏工作流 SOP（17KB / 12 节 / 3 阶段 9 步 / 5 段模板 / 双编码修复 SOP / UUIDv7 思源严格模式 / 10 大陷阱清单）。实战案例：tanpi 文档 10 节展开。触发词:「展开 XX 节」「补全 XX 章节」「深度蒸馏 XX」「tanpi 全展开」
+- **后续待**：固化 SOP 到 `references/distillation_workflow.md`（Stage 2）
 
 ### v3.0 (2026-08-13) — 大整合工程
 

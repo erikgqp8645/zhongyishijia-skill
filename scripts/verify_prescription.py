@@ -28,6 +28,10 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+# 共享 SQLite 路径查找 (三级查找 + 环境变量 + --sqlite 参数)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _sqlite_utils import find_sqlite_path  # noqa: E402
+
 if sys.stdout.encoding != "utf-8":
     try:
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
@@ -35,8 +39,12 @@ if sys.stdout.encoding != "utf-8":
         pass
 
 # ── 配置 ──────────────────────────────────────────
+# SQLite 路径由 _connect(sqlite_arg) 动态解析 (三级查找 + --sqlite 参数 + ZHONGYISHIJIA_SQLITE 环境变量)
+# 保留 _SKILL_ROOT 以备其他用途 (如定位 references/ 子目录)
 _SKILL_ROOT = Path(__file__).resolve().parent.parent
-_DB_PATH = _SKILL_ROOT / "references" / "external" / "zysj.db"
+
+# CLI 指定的 SQLite 路径 (main() 中赋值, _connect() 读取)
+_SQLITE_ARG: str | None = None
 
 # 中药字典 (长药名优先, 避免短串误匹配)
 HERBS = sorted(
@@ -247,13 +255,13 @@ def parse_query(text: str) -> dict:
 
 
 # ── 工具函数 ──────────────────────────────────────
-def _connect() -> sqlite3.Connection:
-    if not _DB_PATH.exists():
-        raise FileNotFoundError(
-            f"zysj.db 不存在: {_DB_PATH}\n"
-            "请确认 SQLite 已复制到 references/external/ 下"
-        )
-    return sqlite3.connect(_DB_PATH)
+def _connect(sqlite_arg: str | None = None) -> sqlite3.Connection:
+    """按优先级查找 SQLite 路径: --sqlite 参数 → ZHONGYISHIJIA_SQLITE → 三级查找"""
+    db_path = find_sqlite_path(sqlite_arg or _SQLITE_ARG)
+    # GBK 编码 (MSSQL 还原特征)
+    conn = sqlite3.connect(str(db_path))
+    conn.text_factory = lambda b: b.decode("gbk", errors="replace")
+    return conn
 
 
 def _extract_herbs(text: str) -> list[str]:
@@ -647,7 +655,16 @@ def main() -> None:
     parser.add_argument("--no-bencao", action="store_true", help="跳过本草原文检索")
     parser.add_argument("--max-pres-list", type=int, default=5, help="步骤 1 展示方剂名数量 (默认 5)")
     parser.add_argument("--debug", action="store_true", help="显示意图解析细节")
+    parser.add_argument(
+        "--sqlite",
+        default=None,
+        help="显式指定 SQLite 数据库路径 (默认走三级查找: ~/.cache/zhongyishijia/ → ~/.local/share/ → <repo>/references/raw/)",
+    )
     args = parser.parse_args()
+
+    # 同步到模块级全局, _connect() 通过 _SQLITE_ARG 读取
+    global _SQLITE_ARG
+    _SQLITE_ARG = args.sqlite
 
     if not args.query:
         parser.print_help()
