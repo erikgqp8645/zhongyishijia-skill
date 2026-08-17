@@ -341,6 +341,7 @@ zhongyishijia-skill/
 │   ├── jianzhong_family_lineage.md       # 建中类方家族演化谱系专题
 │   ├── houshi_heisan_literary_history.md # 侯氏黑散历代注解 (11 医家)
 │   ├── xiongbi_jiu_literary_history.md   # 胸痹第九历代注解 (17 医家)
+│   ├── xiaoluo_dan_literary_history.md   # 消瘰丸/消瘰丹/消疠丸 4 医家化裁 (15KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -457,6 +458,7 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 - **新增** 5 个新 references：
   - `jianzhong_family_lineage.md` — 建中类方家族演化谱系
   - `xiongbi_jiu_literary_history.md` — 胸痹第九历代注解 (17 医家)
+  - `xiaoluo_dan_literary_history.md` — 消瘰丸/消瘰丹/消疠丸 4 医家化裁专题 (程国彭 1732 / 清 14 味变方 / 张锡纯 / 周次青)
   - `fuling_xingren_ju_zhi_comparison.md` — 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
   - `install-path.md` — 安装路径说明
   - `collations/fuxingjue_dabuxixin2_xinjiaozheng.json` — 异文校勘档案

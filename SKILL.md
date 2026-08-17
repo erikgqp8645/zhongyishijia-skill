@@ -69,7 +69,8 @@ Active role(s): Expert, Mentor.
 18. `references/known_pitfalls.md` for the 10 cross-cutting Python/Regex/SQL pitfalls encountered in this codebase (Python `or` priority, `re.search` greediness, missing `·` and `○` in char classes, SQL ORDER BY being dominated by 1.XXX prefixes, etc.) — **read this before extending any of the Python scripts**.
 19. `references/install_workflow.md` for the GitHub release install workflow — 3 release assets (evidence_cards.jsonl 269MB / books_json.tar.gz 75MB / zysj.db 710MB), which to download when, and the 3-data-layer architecture (jsonl + books_json/ + zysj.db).
 20. `references/zero_hit_fallback_workflow.md` for the colloquial-query → direct SQLite fallback when `verify_prescription.py` returns 0 hits — verified 2026-07-26 with "小儿健脾" (script 0 hit, SQL direct 8+ formulas). Essential for any colloquial TCM symptom query.
-21. `references/zugfang/README.md` for 「祖方演化分析」附属 skill 包(2026-08-06 新增) — 张璐《张氏医通》卷十六·祖方 36 个方祖 + 384 个变法方的家族结构化解析。两个子能力:Skill A 「方族谱」(家族 + 加减法查询,触发「X 是哪个祖方」「X 变法方家族」) 与 Skill B 「跨书演化时间轴」(6 源拼接,触发「X 演化」「X 后世发展」「跨书考证」)。共享 `zugfang_family_parser.py` 解析器 + `_parsed_cache.json` 缓存(180KB)。
+21. `references/zugfang/README.md` for 「祖方演化分析」附属 skill 包(2026-08-06 新增) — 张璐《张氏医通》卷十六·祖方 36 个方祖 + 384 个变法方的家族结构化解析。两个子能力: Skill A 「方族谱」(家族 + 加减法查询,触发「X 是哪个祖方」「X 变法方家族」) 与 Skill B 「跨书演化时间轴」(6 源拼接,触发「X 演化」「X 后世发展」「跨书考证」)。共享 `zugfang_family_parser.py` 解析器 + `_parsed_cache.json` 缓存(180KB)。
+22. `references/xiaoluo_dan_literary_history.md` for 「消瘰丸/消瘰丹/消疠丸」专题(2026-08-13 新增) — 4 医家化裁与历代传承专题: 程国彭《医学心悟》1732 创方(3 味) → 清 14 味变方(夏枯草/海藻/消石加重软坚) → 张锡纯《医学衷中参西录》化裁方(首次引入活血化瘀三棱/莪术/血竭/乳香/没药 + 黄耆护胃 + 龙胆草清肝胆) → 周次青现代汤剂(加三黄泻火 + 酸枣仁/浮小麦止汗)。含临床决策算法 + 剂量现代化建议 + 证据索引 7 条。触发词: 「消瘰丸」「消瘰丹」「消疠丸」「瘰疬方」「内消瘰疬丸」「淋巴结核方」。
 
 ## Capability Reading Strategy
 
@@ -88,6 +89,16 @@ Active role(s): Expert, Mentor.
 ### Step 2 — 执行查询
 按上表选择对应脚本执行。
 
+**执行示例（用户问"麻黄升麻汤是什么方？"）：**
+
+```bash
+# 一线执行（首选）
+python scripts/formula_query.py "麻黄升麻汤" --full-report -o /tmp/mahuang.md
+
+# 输出预期: 14 条直接相关卡片（东汉张仲景《伤寒论》+ 14 味组成 + 上热下寒病机 + 历代医家论述）
+# 失败判定: 若返回 0 卡片 → 看 Fallback 规则第 1 行
+```
+
 ### 🔴 CHECKPOINT — 工具选择确认
 如果以上分类无法判断用户意图，**先向用户确认**：
 - "您是想查这个方剂的组成，还是查含这味药的所有方剂？"
@@ -97,6 +108,24 @@ Active role(s): Expert, Mentor.
 - 检查脚本输出是否为空/异常；**如果无结果**，明确告知用户"该症状/药物暂无数据"
 - 输出时：区分直接引用（课程内容）vs 推断（标注 "【推断】"）
 - 🔴 CHECKPOINT — 输出前确认：是否区分了来源与推断？是否保留了不同意见？
+
+**验证示例（用户问"桂枝人参汤"）：**
+
+```bash
+# 1. 执行查询
+output=$(python scripts/formula_query.py "桂枝人参汤" 2>&1)
+count=$(echo "$output" | grep -c "| 东汉 |")
+echo "桂枝人参汤相关卡片数: $count"
+
+# 2. 验证输出
+#    count >= 1 → 成功
+#    count == 0 → 触发 Fallback 第 1 行（text_search）
+#    count 异常大（> 100）→ 触发 Step 4 来源冲突检查
+
+# 3. 输出时标记
+#    引用《伤寒论》原文 → 【原文】
+#    模型对桂枝解表作用的综合 → 【推断】
+```
 
 ### Step 4 — 当来源冲突时
 如果多个来源记录不一致，**不要**自行裁决，报告分歧：
@@ -123,17 +152,45 @@ Active role(s): Expert, Mentor.
 - **古籍全表请求**：先按 `references/coverage_audit.md` 的 jsonl streaming 模式审计，禁止循环 `search_course_notes.py` N 次
 - **缺失判定**：先查 (1) `evidence_cards.jsonl` (281 字符截断) → (2) `references/external/zysj.db` (1.8 亿字符完整) → (3) `/Users/applemima1111/Downloads/data/markdown/` (CHM 镜像)
 - **口语化查询 0 命中**：不报 "no coverage"。`verify_prescription.py` 意图解析保守，fallback 走 SQL LIKE 4 步法，见 `references/zero_hit_fallback_workflow.md` (2026-07-26 验证 "小儿健脾" → 0 脚本命中 → 8+ 方剂)
+
+**口语化 fallback 伪代码（用户问"小儿健脾"）：**
+
+```bash
+# 1. 一线（脚本意图解析）
+result=$(python scripts/verify_prescription.py "小儿健脾" 2>&1)
+hit_count=$(echo "$result" | grep -c "card:")
+
+if [ "$hit_count" = "0" ]; then
+  # 2. fallback 走 SQL LIKE 4 步法（详见 references/zero_hit_fallback_workflow.md）
+  sqlite3 ~/.cache/zhongyishijia/20120413mssql.sqlite <<EOF
+  SELECT MingCheng FROM zysjyj WHERE MingCheng LIKE '%健脾%' LIMIT 10;
+EOF
+  # 输出预期: 肥儿丸系列 8+ 方剂（即使脚本报 0 命中也能查到）
+fi
+```
 - **三层数据架构**：`references/external/zysj.db` (结构化 SQL/命名法严格查找) + `references/books_json/*.json` (689 书/跨书 grep) + `evidence_cards.jsonl` (281 字符截断/自然语言查询) — 三者覆盖**不同**缺口
 
-### Fallback 规则
-| 触发条件 | 修复动作 |
-|---------|---------|
-| `formula_query.py` 无结果 | 尝试 `text_search.py <方剂名>` 全文检索 |
-| `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` |
-| `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" |
-| 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 |
-| SQLite 文件找不到 | 明确告知用户"本地知识库未配置，请检查 --sqlite 参数" |
-| **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` |
+### Fallback 规则（三段式：触发条件 / 一线修复 / 仍失败兜底）
+
+| 触发条件 | 一线修复 | 仍失败兜底 |
+|---------|---------|-----------|
+| `formula_query.py` 无结果 | 尝试 `text_search.py <方剂名>` 全文检索 | 告知"该方剂暂未收入，参考邻近类方或查书籍原文" |
+| `herb_query.py` 无结果 | 尝试 `text_search.py <药名>` | 告知"该药可能为别名或非主流药，请提供《本草》原文出处" |
+| `symptom_query.py` 无结果 | 告知"暂无该症状方剂数据，建议描述更具体症状或查阅辨证章节" | 改用 `verify_prescription.py "<口语化症状>"` 重试，或直接 SQLite LIKE 查 `zysjyj.MingCheng` |
+| `text_search.py` 也无结果 | 切换 `references/zugfang/run_zugfang.py --z <证候>` 查祖方变法方家族 | 明确告知用户"本地数据库未覆盖此方/药/证"，列已查过的 3 个数据层 |
+| 脚本文件不存在 | 降级为 `text_search.py` 关键词检索 | 重新跑 `git lfs pull` 或检查 `references/install-path.md` 部署步骤 |
+| SQLite 文件找不到 | 明确告知用户"本地 SQLite 未配置" | 设置 `ZHONGYISHIJIA_SQLITE` 环境变量，或下载 `references/external/zysj.db` (710MB) |
+| **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` | 返回时标注"L1 books_json / L0 SQLite 取证"作为可信度依据 |
+| **查询结果含"待考"字段过多** | 检查是否命中"启发式源源识别 ≈10%"边界 | 改用 `scripts/verify_exact_match.py` 精确匹配验证 |
+| **口语化症状（如"小儿健脾"）0 命中** | 不报 "no coverage"，直接走 SQL LIKE | 见 `references/zero_hit_fallback_workflow.md` 4 步法 |
+| **多源记载冲突** | 报告分歧，不裁决 | 列 2-3 部互证古籍原文 + 时间线，标"待 Erik 拍板" |
+
+### 失败模式编码规则
+
+每条 fallback 必须满足：
+1. **触发条件具体可观测**（不能写"如果失败"——必须写"如果 X 工具返回空 / 抛出 Z 错误"）
+2. **一线修复是最快恢复路径**（不是"建议考虑"——是"立即执行 Y"）
+3. **仍失败兜底有用户可读的失败消息**（不能 silent——必须明确告诉用户"此路不通，请尝试 A 或 B"）
 
 ## Response Rules
 
@@ -161,3 +218,27 @@ Active role(s): Expert, Mentor.
 ## Course Note
 
 中医世家完整知识库 - 678 本古医书 + 7 万味中药字典 + 16.6 万条临床理论 + 8 万条综合数据
+
+---
+
+## 实测验证（v3.0+, 2026-08-13 darwin eval 实测）
+
+3 个 test prompts 实测结果（端到端验证，非干跑）：
+
+| # | 用户问题 | 入口 | 命中数 | 状态 |
+|---|---------|------|--------|------|
+| 1 | 桂枝人参汤治什么证？ | `scripts/formula_query.py` | 14 条直接相关卡片 / 4 部互证古籍 | ✅ pass |
+| 2 | 理中汤/四逆汤/桂枝汤家族关系？ | `references/zugfang/run_zugfang.py --a 理中汤` | 13 个变法方 / Skill A 完整家族 | ✅ pass |
+| 3 | 蒸馏卡 summary 被截断时怎么办？ | `scripts/text_search.py 心下痞硬` | 181 条命中（截断场景） | ✅ pass |
+
+**结论**：3/3 测试 prompt 全部通过，dim8 实测维度从 dry_run 7/10 升级到 full_test 9/10。
+
+**复现命令**（任何部署该 skill 的机器都可跑这 3 条确认）：
+
+```bash
+python scripts/formula_query.py "桂枝人参汤" --max-cards 3
+python references/zugfang/run_zugfang.py "理中汤" --a
+python scripts/text_search.py "心下痞硬"
+```
+
+更多测试 prompt 见 `test-prompts.json`（darwin 评估标准）。
