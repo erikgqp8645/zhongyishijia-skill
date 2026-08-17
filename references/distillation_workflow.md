@@ -464,10 +464,78 @@ sisyphus fs read --path "/医林独箫斋/总结/<topic>" --blockLimit 3
 | 8 | **长脚本被 blocklist 拦截**（heredoc / for）| 拆短或用 `execute_code` |
 | 9 | **章节标题字符不一致**（全角 / 半角 / 引号）| read_file 精确复制 |
 | 10 | **「承接」方向错**（上承 / 下启 / 横向）| 按朝代时间轴核对 |
+| 11 | **patch 末尾 old_string 截断导致内容重复拼接**（L614/L654/L655/L706/L708 实战）| 每次 patch 后 grep 验证「同一原文 ID 是否在文档中出现 ≥2 次」，>2 次 = 上一轮 patch 没干净 |
+| 12 | **原文引用里的「...」/「……」没消除** | 见**第九节：Erik 偏好不带省略号** |
 
 ---
 
-## 九、典型工作流时间表
+## 九、原文引用「不带省略号」展开 SOP（Erik 硬性偏好）
+
+**Erik 偏好**（2026-08-17 tanpi 文档 41 处省略号展开实战确认）：当深度蒸馏文档出现「...」或「……」**在原文引用块（`「...」`）内部**时，**必须**用 SQL 拿到完整原文替换，**不能保留任何省略号**。即使是 281 字符截断卡，证据原文也有完整版本在 SQLite 里可查。
+
+**触发条件**：
+- `references/*.md` 文档中**引用块**（`「...」` 或 `『...』`）含「...」或「……」
+- **不适用**：占位符类（如 `...（共 8 条）`）
+
+**9 步工作流**：
+
+1. **量化诊断**：用 grep 统计所有省略号（`……` 中文 / `...` 英文 / `.{6,}` 六点）
+2. **SQL 取全文**：批量 `SELECT NeiRong FROM zysjllsj WHERE ID=?`，按字段手解码（GBK / UTF-8）
+3. **存到 JSON**：`/tmp/<topic>_full_content.json`（53 个 ID × 完整原文 ≈ 60KB）
+4. **Python 脚本批量替换**：每条 `old_string` 用完整原文中**关键句**+ `**加粗重点**` 重写
+5. **PATCH 后 grep 验证**：每条替换后 `grep "关键词" references/<topic>.md` 检查次数
+6. **修复重复拼接**：patch `old_string` 截断时内容会被拼接到行末 → 找到 `...**新内容**」|旧内容**...` 模式，删除重复段
+7. **末尾清理**：确保文档里**不含任何引用块内部的省略号**（占位符除外）
+8. **思源同步**：重新写入覆盖（UUIDv7 严格模式）
+9. **commit + push**：`tanpi: 展开 N 处省略号为完整原文`
+
+**代码模板**（按表分编码 + 批量替换）：
+
+```python
+import sqlite3, json
+DB = 'references/external/zysj.db'
+conn = sqlite3.connect(DB)
+# 不设 text_factory，按字段手解码
+def dec_yj(v):
+    if v is None: return None
+    return v.decode('gbk', errors='replace') if isinstance(v, bytes) else v
+def dec_llsj(v):
+    if v is None: return None
+    return v.decode('utf-8', errors='replace') if isinstance(v, bytes) else v
+
+# 1. 取所有引用 ID 的全文
+md = open('references/<topic>.md').read()
+import re
+ids = sorted(set(int(m) for m in re.findall(r'ID=(\d+)', md)))
+content_map = {}
+for iid in ids:
+    cur = conn.execute("SELECT NeiRong FROM zysjllsj WHERE ID=?", (iid,))
+    row = cur.fetchone()
+    if row:
+        content_map[iid] = dec_llsj(row[0])
+
+# 2. 找出所有引用省略号行
+for line in md.split('\n'):
+    if ('「' in line or '『' in line) and ('...' in line or '……' in line):
+        # 此行需要展开 → patch
+        pass
+
+# 3. 批量替换（每条 old_string 用完整原文替换）
+md = md.replace(old_with_ellipsis, new_with_full_text)
+with open('references/<topic>.md', 'w') as f:
+    f.write(md)
+```
+
+**实战数据**（tanpi 2026-08-17）：
+- 起点：79 处省略号（中文 6 + 英文 73）
+- 终点：**0 处引用省略号** + 2 处占位符（保留）
+- 文档增长：80KB → **90KB**（+12.5%），37016 → **~43000 字符**（+15%）
+
+**与 SKILL.md 铁律一致性**：这与 `references/known_pitfalls.md` 提到的「不要删减讲师内容」+「精确溯源」原则完全一致——省略号 = 删减，必须消除。
+
+---
+
+## 十、典型工作流时间表
 
 | 阶段 | 工具调用 | 时间 |
 |------|---------|------|
@@ -483,7 +551,7 @@ sisyphus fs read --path "/医林独箫斋/总结/<topic>" --blockLimit 3
 
 ---
 
-## 十、SOP 工具脚本（未来扩展）
+## 十一、SOP 工具脚本（未来扩展）
 
 **当前**：纯手动 + Python inline 代码。
 
@@ -500,7 +568,7 @@ sisyphus fs read --path "/医林独箫斋/总结/<topic>" --blockLimit 3
 
 ---
 
-## 十一、相关文件清单
+## 十二、相关文件清单
 
 - `references/tanpi_zhibian_yanshuo.md` — 本 SOP 的**实战案例**（10 节展开后的成果）
 - `references/tcm_research_methodology.md` — 4 步研究方法论（SQL 取数基础）
@@ -511,7 +579,14 @@ sisyphus fs read --path "/医林独箫斋/总结/<topic>" --blockLimit 3
 
 ---
 
-## 十二、变更记录
+## 十三、变更记录
+
+### v1.1 (2026-08-17) — 省略号展开 SOP 补充
+
+- **新增第九节**：原文引用「不带省略号」展开 SOP（Erik 硬性偏好）
+- **陷阱清单新增 #11/#12**：patch 末尾截断导致内容重复拼接 / 省略号消除
+- **新增代码模板**：按表分编码 + 批量替换脚本骨架
+- **实战数据**：tanpi 41 处省略号全部展开（80KB → 90KB）
 
 ### v1.0 (2026-08-17) — 首次固化
 
