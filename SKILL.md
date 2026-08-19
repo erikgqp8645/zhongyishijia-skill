@@ -75,6 +75,7 @@ Active role(s): Expert, Mentor.
 23. `references/yantong_literary_history.md` for 「咽痛」专题(2026-08-17 新增) — 24 条证据覆盖战国《灵枢》→ 东汉《伤寒论》→ 清·黄元御《伤寒说意》/吕震名《伤寒寻源》/王泰林《退思集类方歌注》/陈念祖方歌/吴谦《医宗金鉴》/冯兆张《冯氏锦囊秘录》→ 民国·张锡纯。核心心法:**咽痛辨证的核心不在咽喉局部,而在少阴水火、阴阳格拒、上下热寒** — 5 经方(猪肤汤/甘草汤/桔梗汤/苦酒汤/半夏散)+ 通脉四逆汤/麻黄升麻汤 + 1 经筋(灵枢第八)构成完整病机骨架。触发词: 「咽痛」「少阴咽痛」「喉痹」「咽干」「咽痛辨证」「猪肤汤」「苦酒汤」「半夏散」「甘草汤」「桔梗汤」「通脉四逆汤」「麻黄升麻汤」。
 24. `references/tanpi_zhibian_yanshuo.md` for 「痰癖治法演变」专题(2026-08-17 新增) — 28 朝代 / 138 TypeID / 379 条原文全库溯源。关键史实:**「痰癖」作为独立病名始于隋·巢元方《诸病源候论》**,东汉张仲景《金匮》只有「痰饮/淡饮/留饮」无「癖」字。核心心法:**病名从无到有、治法从攻到补、用药从峻到缓** — 东汉仲景温阳化饮 → 魏晋陶弘景立巴豆/朴消/荛花峻下三药 → 隋·巢元方定型 → 唐·孙思邈攻补兼施 → 宋·陈言开「风寒暑湿皆生痰」 → 元·李东垣转「治痰从脾胃」 → 明·王肯堂/张介宾定临床诊断金标准 → 清·张璐/汪昂完成临床手册标准化。触发词: 「痰癖」「痰饮」「淡饮」「留饮」「痰癖候」「痰癖治法」。
 25. `references/distillation_workflow.md` for 「深度蒸馏工作流」(2026-08-17 新增) — 当 `references/*.md` 专题中存在「未充分展开」章节（body < 200 字）时，按 **5 段展开模板 + 双编码修复 SOP + UUIDv7 思源严格模式** 升级为带原文 ID 的精微版。核心心法:**SQL 全库溯源 + 5 段模板 + 朝代承接叙事** = 把精简版朝代章节升级为精微版。3 阶段 9 步流程 + 10 大陷阱清单 + 思源严格模式 5 步。实战案例：tanpi 文档 10 节展开（22KB → 80KB / +260%）。触发词: 「展开 XX 节」「补全 XX 章节」「深度蒸馏 XX」「tanpi 全展开」。
+26. `references/wenyao_bixi_daquan.md` for 「闻药·鼻吸·鼻烟方剂大全」(2026-08-17 新增) — 115 张鼻疗法方剂全库溯源（**唐·千金/外台 鼻疗法 + 宋·圣惠/圣济 + 金元·东垣/王好古 + 明清·临床手册 + 清·本草纲目拾遗 鼻烟**）。按 10 大功效分类：**急救通关(22) / 通鼻窍(19) / 鼻衄(10) / 头痛头风(15) / 眼疾(10) / 喉痹(5) / 小儿疳(12) / 黄疸(4) / 鼻烟(11) / 鼻息肉(2)**。含 3 张**鼻烟壶装药实战配方**（安全/救急/峻烈 3 级）。Top 30 高频核心药本草溯源。触发词：「闻药」「鼻烟」「鼻烟壶」「鼻疗」「吹鼻」「搐鼻」「灌鼻」「取嚏」「鼻塞」「鼻渊」「鼻衄」「鼻息肉」「中恶急救」「孙思邈五绝」。
 
 ## Capability Reading Strategy
 
@@ -207,6 +208,7 @@ fi
 - For "complete list" questions about specific classical texts, first report coverage status (covered / partial / not covered) before listing. Distinguish "from this knowledge base" vs "from the standard scholarly edition" — the latter is inference. See `references/coverage_audit.md` for the audit pattern and known gaps.
 - For "deep dive" queries about why a formula uses a particular herb, or what a herb's 原始本草原文 says, route through `scripts/verify_prescription.py` and `references/tcm_research_methodology.md` — never invent 本经 原文 from memory.
 - For "含 X 药方剂的出处/作者/朝代/主治" tabular requests, route through `scripts/formula_table.py` and `references/formula_metadata_table.md` — output Markdown table directly; do not manually construct a list of (方名, 朝代, 出处) tuples from memory. The tool runs the same heuristic dictionary every time and stays consistent with the underlying SQLite state.
+- **No ellipsis in source quotes (Erik 硬性偏好，2026-08-17 tanpi 文档蒸馏实测确认)**: When quoting source text inside `「...」` / `『...』` blocks, **never** use `...` / `……` to abbreviate. Either quote the full passage from SQLite (`zysjllsj` / `zysjyj` via `references/external/zysj.db`) or write a clean summary outside the quote marks. The distillation SOP for removing existing ellipsis is `references/distillation_workflow.md` 第九节 + 2.3 节. Placeholder ellipsis like `...（共 8 条）` is allowed (it's not a quote).
 
 ### Mentor
 - Use course references first, and distinguish direct course content from mentor-style synthesis.

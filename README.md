@@ -345,6 +345,7 @@ zhongyishijia-skill/
 │   ├── yantong_literary_history.md       # 咽痛历代医家论述 (24 条/战国-民国, 32KB)
 │   ├── tanpi_zhibian_yanshuo.md          # 痰癖治法演变全库溯源 (28 朝代/138 TypeID/379 原文/924 行/80KB, 10 节展开)
 │   ├── distillation_workflow.md         # 深度蒸馏工作流 (3 阶段 9 步 + 5 段模板 + 双编码修复 SOP, 17KB)
+│   ├── wenyao_bixi_daquan.md          # 闻药·鼻吸·鼻烟方剂大全 (115 张/10 大类/3 张鼻烟壶配方, 29KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -467,6 +468,7 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 - **新发现陷阱**（已固化）：`zysjyj` = GBK，`zysjllsj` = UTF-8 — 不能 `text_factory = lambda b: b.decode("gbk")` 一刀切
 - **修改** `README.md` tanpi 行体积（24KB → 80KB/924 行）+ 追加 v3.2 变更记录
 - **新增** `references/distillation_workflow.md` — 深度蒸馏工作流 SOP（17KB / 12 节 / 3 阶段 9 步 / 5 段模板 / 双编码修复 SOP / UUIDv7 思源严格模式 / 10 大陷阱清单）。实战案例：tanpi 文档 10 节展开。触发词:「展开 XX 节」「补全 XX 章节」「深度蒸馏 XX」「tanpi 全展开」
+- **新增** `references/wenyao_bixi_daquan.md` — 闻药·鼻吸·鼻烟方剂大全（29KB / 115 张 / 10 大类 / Top 30 高频药 / 3 张鼻烟壶装药配方 / 《千金》/《外台》鼻疗法溯源 / 朝代沿革轴）。触发词:「闻药」「鼻烟」「鼻烟壶」「鼻疗」「吹鼻」「搐鼻」「灌鼻」「取嚏」「鼻塞」「鼻渊」「鼻衄」「鼻息肉」「中恶急救」
 - **后续待**：固化 SOP 到 `references/distillation_workflow.md`（Stage 2）
 
 ### v3.0 (2026-08-13) — 大整合工程

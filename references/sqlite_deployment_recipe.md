@@ -181,6 +181,75 @@ ls -lh ~/.cache/zhongyishijia/ 2>&1
 
 **判定**：**4 表齐全 + 行数对得上 + GBK 编码可读 = 可用**，不要被 SHA256 不匹配吓退。
 
+### 陷阱 #6：双表编码不一致（2026-08-17 tanpi 文档蒸馏时实测发现）
+
+**症状**：CLI 直连 `sqlite3 zysj.db` 中文正常，但 Python 脚本用 `text_factory = lambda b: b.decode("gbk")` 后**某些表乱码**（如 `zysjllsj` 输出 `缁撻槾澶т究琛`）
+
+**根因**：**CLAUDE.md 写的「SQLite is GBK」是错误的简化**——MSSQL 还原产物里**不同表用了不同编码**：
+
+| 表 | 实际编码 | 解码函数 |
+|---|---------|---------|
+| `zysjyj`（方剂 70350 行） | **GBK** | `b.decode("gbk")` |
+| `zysjllsj`（临床理论 166423-206245 行） | **UTF-8** | `b.decode("utf-8")` |
+| `zysjzhsj`（综合 80809 行） | 待测试 | — |
+| `zysjcell`（细胞 1229-1390 行） | 待测试 | — |
+
+**判定方法**（每张表必跑）：
+
+```python
+import sqlite3
+DB = 'references/external/zysj.db'
+conn = sqlite3.connect(DB)
+cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+for (table,) in cur:
+    cur2 = conn.execute(f"SELECT BiaoTi FROM {table} WHERE BiaoTi IS NOT NULL LIMIT 1")
+    row = cur2.fetchone()
+    if not row: continue
+    raw = row[0]
+    if isinstance(raw, str):
+        print(f"{table}: already str = {raw[:50]}")
+        continue
+    for enc in ['gbk','gb18030','utf-8','big5']:
+        try:
+            txt = raw.decode(enc, errors='strict')
+            if any('\u4e00' <= c <= '\u9fff' for c in txt[:20]):
+                print(f"{table}: ✓ {enc} = {txt[:50]}")
+                break
+        except: pass
+```
+
+**修复**（`scripts/_sqlite_utils.py` / 任何新脚本必须遵守）：
+
+```python
+# ❌ 错误做法：单 text_factory 套全部
+conn.text_factory = lambda b: b.decode("gbk", errors="replace")
+
+# ✅ 正确做法：不设 text_factory，按字段手解码
+def dec_yj(v):
+    """zysjyj = GBK"""
+    if v is None: return None
+    return v.decode('gbk', errors='replace') if isinstance(v, bytes) else v
+
+def dec_llsj(v):
+    """zysjllsj = UTF-8"""
+    if v is None: return None
+    return v.decode('utf-8', errors='replace') if isinstance(v, bytes) else v
+
+def dec_zhsj(v):
+    """zysjzhsj = 待测试"""
+    if v is None: return None
+    return v.decode('utf-8', errors='replace') if isinstance(v, bytes) else v
+```
+
+**实战**（tanpi 文档蒸馏）：
+
+| 之前 | 之后 |
+|---|---|
+| 用 `text_factory = gbk` → `zysjllsj` 全部乱码（`缁撻槾澶т究琛` 等） | 按表分编码 → 所有中文清晰可读 |
+| 脚本拿不到原文 | 35 条原文全部正确提取，蒸馏文档从 22KB 扩到 90KB |
+
+**教训**：CLAUDE.md 写「GBK」是不准确的老经验。每次新表先跑上面的判定方法确认编码。
+
 ---
 
 ## 四、跨机器部署清单
@@ -223,3 +292,10 @@ python3 scripts/verify_prescription.py "痰癖"
   - `verify_prescription.py` 硬编码路径改为四级查找 + GBK 编码补丁
   - 删除 `~/.cache/zhongyishijia/` 副本（避免双份 711MB）
 - 命名约定：**仓库内 SQLite 永远叫 `zysj.db`**（Erik 明确要求保持文件名不变）
+
+### 2026-08-17 — 陷阱 #6 双表编码不一致
+
+- 触发场景：tanpi 文档蒸馏 (`references/distillation_workflow.md` 实战) 发现 `zysjllsj` 用 GBK 解码全乱码
+- 关键发现：**CLAUDE.md 写「SQLite 是 GBK」是错误的简化**——`zysjyj` 才是 GBK，`zysjllsj` 实际是 UTF-8
+- 修复：陷阱 #6 加判定方法（每张表先 spot-check）+ 按字段手解码函数 `dec_yj`/`dec_llsj`/`dec_zhsj`
+- 影响：35 条原文全部正确提取，tanpi 文档从 22KB 扩到 90KB
