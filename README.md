@@ -347,6 +347,7 @@ zhongyishijia-skill/
 │   ├── distillation_workflow.md         # 深度蒸馏工作流 (3 阶段 9 步 + 5 段模板 + 双编码修复 SOP, 17KB)
 │   ├── wenyao_bixi_daquan.md          # 闻药·鼻吸·鼻烟方剂大全 (115 张/10 大类/3 张鼻烟壶配方, 29KB)
 │   ├── wenyao_query_workflow.md       # 方剂专题查询工作流 (3 阶段 4 步, 适用任何 X 主题方剂查询, 17KB)
+│   ├── zhongyi_source_citation_principle.md # 中医方剂引用原文 5 大铁律 (不带省略号/双编码/不删减/可溯源/朝代, 10KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -471,6 +472,7 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 - **新增** `references/distillation_workflow.md` — 深度蒸馏工作流 SOP（17KB / 12 节 / 3 阶段 9 步 / 5 段模板 / 双编码修复 SOP / UUIDv7 思源严格模式 / 10 大陷阱清单）。实战案例：tanpi 文档 10 节展开。触发词:「展开 XX 节」「补全 XX 章节」「深度蒸馏 XX」「tanpi 全展开」
 - **新增** `references/wenyao_bixi_daquan.md` — 闻药·鼻吸·鼻烟方剂大全（29KB / 115 张 / 10 大类 / Top 30 高频药 / 3 张鼻烟壶装药配方 / 《千金》/《外台》鼻疗法溯源 / 朝代沿革轴）。触发词:「闻药」「鼻烟」「鼻烟壶」「鼻疗」「吹鼻」「搐鼻」「灌鼻」「取嚏」「鼻塞」「鼻渊」「鼻衄」「鼻息肉」「中恶急救」
 - **新增** `references/wenyao_query_workflow.md` — 方剂专题查询工作流（17KB / 3 阶段 4 步 / 5 大陷阱 / 7 个可扩展主题）。适用任何「X 主题方剂查询」（明目方/安胎方/外科方/喉科方/妇科方/儿科方）。触发词:「方剂专题查询」「查 X 方剂」「X 主题方剂」「全库方剂」「明目方」「安胎方」「外科方」「喉科方」「妇科方」
+- **新增** `references/zhongyi_source_citation_principle.md` — 中医方剂引用原文 5 大铁律（10KB）：① 原文不带省略号（Erik 硬性偏好）② SQLite 双编码修复（zysjyj=GBK / zysjllsj=UTF-8）③ 不删减讲师/原文内容（项目愿景「不编造」原则）④ 可溯源（每条引用必有 chunk_id）⑤ 朝代溯源按可查证据分级（A/B/C/D 级）。整合 tanpi v3.2 + wenyao 大全实战。触发词:「中医方剂」「引用原文」「省略号」「溯源」「朝代」「编码」「不编造」「不删减」
 - **后续待**：固化 SOP 到 `references/distillation_workflow.md`（Stage 2）
 
 ### v3.0 (2026-08-13) — 大整合工程
