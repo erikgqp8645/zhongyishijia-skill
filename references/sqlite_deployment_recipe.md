@@ -21,13 +21,27 @@
 
 ### Step 1 — 下载 SQLite
 
-从 GitHub release 下载（与 `evidence_cards.jsonl` 同一 release 页面）：
+从 GitHub release `v1.2-zysj-db` 下载（2026-08-24 发布）：
 
 ```
-zysj.db  ~711 MB  (与本仓库 CLAUDE.md 提到的 SHA256 校验码对应)
+https://github.com/erikgqp8645/zhongyishijia-skill/releases/tag/v1.2-zysj-db
 ```
 
-> ⚠️ **SHA256 注意**：仓库 CLAUDE.md 写明的期望 SHA256 是 `6fa194c9...`。但 Erik 的实际备份 `/Users/applemima1111/Downloads/项目文件/其他_55/20120413mssql.sqlite` 校验出 `2ea61834...`——**SHA256 不匹配但 4 表齐全、行数对得上**。可能是不同时期的还原备份。判定标准：**4 表存在 + 行数匹配 + GBK 编码可读 = 可用**。
+```
+zysj.db  ~711 MB
+SHA256: 2ea618348581ac4a5fccb96ada011b9d09006acef9b93da744b7cab4dcd2aee0
+```
+
+下载命令：
+
+```bash
+gh release download v1.2-zysj-db \
+  --repo erikgqp8645/zhongyishijia-skill \
+  --pattern "zysj.db" \
+  --dir /tmp/
+```
+
+> ⚠️ **SHA256 历史说明**：仓库 CLAUDE.md 写明的期望 SHA256 是 `6fa194c9...`（早期备份）,但 Erik 实际可用备份（2026-08-17 部署）的 SHA256 是 `2ea61834...`,该版本已在 `v1.2-zysj-db` release 中发布。**判定标准**：SHA256 与 release 一致 + 4 表存在 + 行数匹配 + GBK 编码可读 = 可用。
 
 ### Step 2 — 验证 SQLite 完整性
 
