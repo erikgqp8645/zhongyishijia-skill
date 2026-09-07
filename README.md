@@ -348,6 +348,10 @@ zhongyishijia-skill/
 │   ├── wenyao_bixi_daquan.md          # 闻药·鼻吸·鼻烟方剂大全 (115 张/10 大类/3 张鼻烟壶配方, 29KB)
 │   ├── wenyao_query_workflow.md       # 方剂专题查询工作流 (3 阶段 4 步, 适用任何 X 主题方剂查询, 17KB)
 │   ├── zhongyi_source_citation_principle.md # 中医方剂引用原文 5 大铁律 (不带省略号/双编码/不删减/可溯源/朝代, 10KB)
+│   ├── kouqiang_kuiyang_zhenjiu.md   # 口腔溃疡针灸方剂 (30 张/35 原文/5 流派/10 证型速查, 19KB)
+│   ├── modern_classical_tcm_term_expansion.md # 现代病名↔古籍病名 扩展手册 (3 步 SOP, 16KB)
+│   ├── gaoyao_jingjianyaotuiteng.md  # ⭐ 颈肩腰腿痛膏药方大全 (121 张/8 大功效/Top 40 高频药/5 大经典方根/5 首实战方/临床决策算法, 76KB)
+│   ├── gaoyao_query_workflow.md      # ⭐ 中医外科膏药方专题查询工作流 (膏药工作流 / 3 大专属约束 + 3 大 SQL 陷阱, 23KB)
 │   ├── fuling_xingren_ju_zhi_comparison.md # 茯苓杏仁甘草汤 vs 橘枳姜汤对偶
 │   ├── coverage_audit.md         # 经典覆盖率审计
 │   ├── tcm_research_methodology.md # 4 步唐宋古方研究方法论
@@ -438,6 +442,15 @@ python scripts/build_herb_index.py         # 构建本草反向索引
 ---
 
 ## 📋 更新日志
+
+### v3.2 (2026-09-07) — 颈肩腰腿痛膏药大全 + 膏药专题查询工作流
+
+- **新增** `references/gaoyao_jingjianyaotuiteng.md` — 颈肩腰腿痛膏药方大全（76KB / 524 行 / 121 张方剂 / 8 大功效分类 / Top 40 高频核心药 / 5 大经典方根 / 5 大临床实战首推方 / 临床决策算法）。横跨唐《千金要方/外台秘要》→ 宋《太平圣惠方/圣济总录》→ 明《外科正宗/证治准绳/医学纲目》→ 清《理瀹骈文/医宗金鉴/张氏医通/外科证治全生集/急救广生集》→ 现代《药典》。**关键溯源**: 吴尚先《理瀹骈文》「薄贴论」原话 + 「筋骨闪挫膏药方」71 味大复方 + 「风湿诸般疼痛膏药」+「贴腰膏」。触发词:「颈肩腰腿痛」「筋骨疼痛膏药」「风湿疼痛膏药」「跌打损伤膏药」「腰痛膏药」「狗皮膏」「虎骨膏」「贴腰膏」。
+- **新增** `references/gaoyao_query_workflow.md` — 中医外科膏药方专题查询工作流（23KB / `wenyao_query_workflow.md` 母工作流的姊妹专题文档 / 3 大专属约束 + 3 大 SQL 陷阱）。**3 大专属约束**:① 皮肤痹痛 vs 筋骨痹痛去重（核心陷阱：皮肤病膏药也会出现「痹」字，但治风癣/鹅掌风非筋骨痹痛——必须用部位白名单二次过滤）② 古今同名方剂家族化呈现（狗皮 14+ / 太乙 4+ / 万应 9+ / 紫金 15+ 变方）③ 现代中成药 vs 古籍原方 分层（基质差异）。**3 大 SQL 实战陷阱**:① Python `'''...'''` 文档字符串内嵌 SQL 单引号冲突导致 0 命中 ② 复合 WHERE 子句被 f-string 切错乱 ③ zysjyj=GBK / zysjllsj=UTF-8 编码一刀切。触发词:「中医外科膏药」「中医外科膏方」「膏药专题查询」。
+- **补登记** `references/kouqiang_kuiyang_zhenjiu.md` — 口腔溃疡针灸方剂（30 张 / 35 原文 / 5 流派 / 10 证型速查 / 19KB，2026-08-27 新增当时漏掉 README 同步）
+- **补登记** `references/modern_classical_tcm_term_expansion.md` — 现代病名↔古籍病名 扩展手册（3 步 SOP / 16KB，2026-08-27 新增当时漏掉 README 同步）
+- **修改** `SKILL.md` Reference Priority 30→32（追加 gaoyao_jingjianyaotuiteng + gaoyao_query_workflow 编号）
+- **修改** `README.md` 仓库结构树追加 4 行 + v3.2 变更记录
 
 ### v3.1 (2026-08-17) — 多分支合并 + 2 个新专题补登记
 
