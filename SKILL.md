@@ -29,8 +29,9 @@ grep -cE "^[0-9]+\. \`references/" SKILL.md           # → 33 (唯一 sync 点)
 
 **校验规则**(1 处同步铁律对应 1 hits,不是 3 hits):
 ```bash
-# 校验:yin_chuang_treatment.md 在 SKILL.md 中应出现 1 次
-grep -c "yin_chuang_treatment.md" SKILL.md   # → 1
+# 校验:新专题文件名在 SKILL.md 中应出现 1 次(只在 Reference Priority 列表里)
+# 示例:<file_basename>.md 替换为实际文件名
+grep -c "<file_basename>.md" SKILL.md   # → 1
 ```
 
 **新文件 → Reference Priority #N 模板**(新增章节 #34):
