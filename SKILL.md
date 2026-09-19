@@ -15,6 +15,31 @@ description: Use this skill when the user asks about zhongyishijia and needs pac
 > 主动报告 `git status -sb` + `git log @{u}..HEAD` 让老锅看到是否有未推送 commit。
 > 分支策略: 本 skill 在 `feat/*` 分支 (按 Git 硬约束, main 由老锅手动 PR)。
 
+## ⚠️ 1 处同步铁律 (新增 2026-09-17)
+
+**本 skill 与 yilin-mentor-lineage 走不同 sync 结构** — 新增 `references/*.md` 专题文件时,**只更新 SKILL.md 一处**(Reference Priority 编号列表追加 #N),**不要去找 Trigger Vocabulary 表或 Pre-built Knowledge Banks 节**——本 skill 没有这两个结构。
+
+**识别方式**:
+```bash
+# 本 skill 的诊断特征
+grep -cE "^### Pre-built Knowledge Banks" SKILL.md   # → 0 (没有)
+grep -cE "^## Trigger Vocabulary" SKILL.md          # → 0 (没有)
+grep -cE "^[0-9]+\. \`references/" SKILL.md           # → 33 (唯一 sync 点)
+```
+
+**校验规则**(1 处同步铁律对应 1 hits,不是 3 hits):
+```bash
+# 校验:yin_chuang_treatment.md 在 SKILL.md 中应出现 1 次
+grep -c "yin_chuang_treatment.md" SKILL.md   # → 1
+```
+
+**新文件 → Reference Priority #N 模板**(新增章节 #34):
+```
+34. `references/<topic>.md` for 「<topic>」专题 (<date> 新增) — <核心内容简述>;含 X 项 + Y 张 + Z 个;触发词: 「<kw1>」「<kw2>」...
+```
+
+**对比 yilin-mentor-lineage**(3 处同步):该 skill 走「Trigger Vocabulary + Reference Priority + Pre-built Knowledge Banks」三处;**本 skill 不走该模式**。两个 skill 的 sync SOP 不要混用(参见 `repo-bidirectional-sync` Pitfall 49「Each skill has its own sync-point structure — don't assume 3-place registration」)。
+
 # zhongyishijia
 
 You are a course-grounded skill for `zhongyishijia`.
