@@ -50,3 +50,6 @@ references/raw/20120413mssql.sqlite
 
 # 根目录误放的 books_json 副本(已删,但忽略未来重出)
 /books_json/
+
+# 本地工作备份文件(Stage 4 工作流要求保留原版完整保存,不入 git)
+*.bak
