@@ -19,6 +19,8 @@ description: Use this skill when the user asks about zhongyishijia and needs pac
 
 **本 skill 与 yilin-mentor-lineage 走不同 sync 结构** — 新增 `references/*.md` 专题文件时,**只更新 SKILL.md 一处**(Reference Priority 编号列表追加 #N),**不要去找 Trigger Vocabulary 表或 Pre-built Knowledge Banks 节**——本 skill 没有这两个结构。
 
+**推送 SOP**:本 skill 在 `feat/*` 分支 → main 由老锅手动 PR。完整 6 步推送流程 + 推送验证三件套 + GitHub raw cache 滞后陷阱 + 4 大常见错误模式见 `references/zhongyishijia_push_sop.md`(2026-09-17 新增,阴疮专题实战固化)。**触发词**:「推送 SOP」「feat 分支」「合并到 main」「手动 PR」「gh api 验证」。
+
 **识别方式**:
 ```bash
 # 本 skill 的诊断特征
@@ -109,6 +111,9 @@ Active role(s): Expert, Mentor.
 31. `references/gaoyao_jingjianyaotuiteng.md` for 「颈肩腰腿痛膏药方大全」(2026-09-07 新增) — **121 张膏药方剂全库溯源**(清《理瀹骈文》吴尚先「薄贴论」+「筋骨闪挫膏药方」+「风湿诸般疼痛膏药」+「贴腰膏」核心,横跨唐《千金要方/外台秘要》→ 宋《太平圣惠方/圣济总录》→ 明《外科正宗/证治准绳/医学纲目》→ 清《医宗金鉴/张氏医通/外科证治全生集/急救广生集》→ 现代《药典》)。**核心创新**:① **8 大功效分类**(跌打损伤 34/腰痛 27/风寒湿痹 22/全身筋骨痹痛 15/筋脉麻木拘挛 13/腿膝足痛 5/颈项痛 3/半身不遂瘫痪 2);② **Top 40 高频核心药本草溯源**(当归 102/附子 56/肉桂 42/麝香 40/细辛 34/没药 33/乳香 31);③ **5 大经典方根家族**(太乙膏/万应膏/狗皮膏/虎骨膏/阳和解凝膏);④ **5 大临床实战首推方**(蠲痛五汁膏/贴腰膏/集宝疗痹膏/阳和解凝膏/苍梧道士陈元膏 安全/救急/峻烈 3 级);⑤ **临床决策算法**(5 步:急性/慢性→虚实→部位→寒热→安全性检查)。**关键临床证据**:**「薄贴论」吴尚先原话**「其病既有定所,在于皮肤筋骨之间,可按而得者,用膏贴之,闭塞其气,使药性从毛孔而入其腠理,通经贯络,或提而出之,或攻而散之,较之服药尤有力,此至妙之法也」。**膏药透皮吸收的现代药理学证实**:冰片/薄荷脑/樟脑为透皮促进剂,川乌/草乌含乌头碱镇痛,乳香/没药含 Boswellic acid 抗炎。触发词:「颈肩腰腿痛」「颈肩腰腿痛膏药」「筋骨疼痛膏药」「风湿疼痛膏药」「跌打损伤膏药」「腰痛膏药」「腿膝足痛膏药」「痹证膏药」「贴腰膏」「狗皮膏」「虎骨膏」「筋骨闪挫膏药」「风湿诸般疼痛膏药」。
 32. `references/gaoyao_query_workflow.md` for 「中医外科膏药方专题查询工作流」(2026-09-07 新增) — **膏药专题查询 SOP 姊妹文档**(`wenyao_query_workflow.md` 母工作流是闻药·鼻吸·鼻烟专题,本文档专攻膏药外治)。**3 大专属约束**(vs 母工作流):① **约束 A 皮肤痹痛 vs 筋骨痹痛去重**(核心陷阱:皮肤病膏药如川槿皮膏/马齿苋膏/曼荆实丸也会出现「痹」字,但治风癣/鹅掌风非筋骨痹痛——必须用部位白名单「颈/项/肩/臂/腰/腿/膝/足/脚/背/脊/筋骨/骨节/肢节/关节」二次过滤);② **约束 B 古今同名方剂家族化呈现**(狗皮膏 14+ 变方 / 太乙膏 4+ 变方 / 万应膏 9+ 变方 / 紫金膏 15+ 变方——保留全部变方但在文档中家族化分组,而非简单去重);③ **约束 C 现代中成药 vs 古籍原方 分层**(基质差异:古方麻油+黄丹 / 近代方+松香蜂蜡 / 现代方橡胶+凡士林+羊毛脂+氧化锌+汽油——朝代溯源章节必须显式标注)。**3 大 SQL 实战陷阱**:① Python `'''...'''` 文档字符串内嵌 SQL 单引号冲突导致 0 命中(实战 700+ → 0 条);② 复合 WHERE 子句被 f-string 切错乱;③ zysjyj=GBK / zysjllsj=UTF-8 编码一刀切乱码。**实战数据**:121 张膏药方剂 / 76KB / 524 行 / 8 大功效分类 / Top 40 高频核心药 / 5 大经典方根家族 / 5 大临床实战首推方。触发词:「中医外科膏药」「中医外科膏方」「中医外科薄贴」「中医外科贴药」「膏药专题查询」「膏药方查询」「颈肩腰腿痛膏药查询」「跌打损伤膏药查询」「风湿疼痛膏药查询」「中医外科膏药工作流」「膏药工作流」。
 33. `references/yin_chuang_treatment.md` for 「阴疮」专题 (2026-09-17 新增) — **23 张阴疮方剂 + 30+ 张阴蚀方剂全库溯源**,横跨东汉《金匮要略》→ 隋《诸病源候论》→ 唐《千金要方》→ 宋《妇人良方/校注妇人良方》→ 明《外科正宗》→ 清《医宗金鉴/医学纲目/长沙药解/本经疏证/陈素庵妇科补解》→ 现代《赵炳南临床经验集》。**核心创新**:① **5 大病机分类**(湿热下注/虫蚀蕴毒/寒湿凝滞/气血两虚/肝郁脾虚);② **病机时间线**(仲景立论 → 隋巢元方虫蚀学说 → 宋陈自明七情郁火 → 明陈实功三等说 → 清黄元御木郁下热注 → 现代赵炳南三联方);③ **23 张阴疮方剂按主方归类**(仲景原方2+内服主方7+温阳托毒方3+外用膏散方8+简验方3);④ **30+ 张阴蚀外治方剂按功效分类**(仲景原方2+经典外洗方7+内服托毒方5+散剂膏剂8+简验方8);⑤ **Top 6 高频核心药本草溯源**(乳香/黄柏/黄耆/当归/白芷/甘草);⑥ **临床决策流程图**(症状→病机→方剂);⑦ **阴疮与狐惑(白塞氏病)鉴别**——仲景「蚀于喉为惑,蚀于阴为狐」,狼牙汤治阴、甘草泻心汤治喉。**关键临床证据**:**「阴蚀多发于嫠寡(寡妇),证必咳逆经闭,骨蒸寒热」(邹澍《本经疏证》)**;**「痘疹阴疮,则当以黄耆为君,人参为臣」**(黄耆本草)。触发词:「阴疮」「阴蚀」「阴中生疮」「妇人阴疮」「外阴溃疡」「前阴溃疡」「妇人隐疾」「下疳阴疮」「阴痒阴蚀」「产后阴蚀」「蠹疮」「白塞氏阴部表现」「糖尿病合并外阴感染」「嫠寡阴蚀」。
+34. `references/zhongyishijia_push_sop.md` for **本 skill 推送 SOP**(2026-09-17 新增) — `feat/* → main` 完整 6 步推送流程 + GitHub raw cache 滞后陷阱(gh api 是权威)+ 推送验证三件套 + 与 yilin-mentor-lineage 推送差异对比 + 4 大常见错误模式(切 main 失败 / 分支未合并强删 / gh api vs raw curl 不一致 / SKILL.md 同步铁律示例命令自指 bug)。**触发词**: 「推送 SOP」「feat 分支」「合并到 main」「手动 PR」「gh api 验证」「raw.githubusercontent.com cache」「推送验证三件套」「git merge --ff-only」。**实战 commit 历史**:737abb6 / 844c85a / 32f0191(阴疮专题一次性 3 commit 结构)。
+35. `references/external_formula_workflow.md` for **外治法方剂检索工作流**(病机 × 给药途径) — 方剂表按**外敷/外贴/熨/洗/涂/填塞**这一维度横切的检索形状。**核心心法:外用方的病机写在组成/制法/用法/按语里,不写在主治里** —— 病机列与主治列必须**分列扫描、组内 OR、组间 AND**(只扫 GongNengZZ 查「痰瘀外敷方」只得 16 首,分列扫描后数十倍于此)。含 **5 大给药途径分类**(贴敷/熨法/洗浴/涂布/填塞坐药)+ **同名方多版本并陈**(加减紫金丹 2 版主治病机方向不同)+ **方名 0 命中回查 zysjllsj 正文**(「新加栝蒌薤白汤」方剂表 0 条,俞根《通俗伤寒论》正文有完整组成)+ Erik 要求的**全字段输出形状**(组成+制法+用法+出处)。**一键跑**:`python3 scripts/external_formula_query.py --pathology 痰 瘀`。**触发词**: 「外敷方」「外用方」「外治法方剂」「外贴」「摊贴」「箍围」「熨法」「贴脐」「外洗」「痰瘀外敷方」「外用膏剂有哪些」。
+36. `references/tan_yu_waifu.md` for 「痰瘀互结 · 中焦阻滞 + 内外方剂」专题 (2026-10-21 新增) — **痰瘀互结的病机骨架 + 中焦定位 + 内服 6 方配伍全字段 + 外敷方剂 4 大类全库溯源**(56KB / 470 行)。**核心创新**:① **病机四治则**——周仲瑛《讲中医临证技巧·多因复合》痰瘀互结专论(津血同源/互生/「痰化瘀消,瘀去痰散」/必配理气);② **中焦定位三源**——俞根《通俗伤寒论》「有痰挟血瘀,酿成窠囊作痞者」八因说 + 罗赤诚《医述》痰挟瘀血 vs 瘀血挟痰**双向鉴别** + 王好古血蓄三焦;③ **外敷 4 大类**——A 中焦痞块外敷 23 首(消痞膏/消痞核桃/熨痞方/化痞反正膏/阿魏化痞膏 等,共法:阿魏麝香破瘀开窠+白芥子莪术鳖甲化痰软坚+荞麦面圈热砖熨透)+ B 痰核瘰疬 9 首 + C 关节肌肉 3 首 + D 箍围药四方药性框架(金黄散/玉露散/回阳玉龙膏/冲和膏);④ **外敷 4 条心法**——阿魏为第一味药/白芥子+鳖甲化痰/熨法是中医特有中焦透皮技术/贴脐是特定给药途径(全库 61 首);⑤ **7 条治则**——分清主次/必配理气/**中焦禁峻攻**/忌专事疏利(愈疏愈痞)/苍术为成囊第一对症药/外敷必辨阴阳(「阴证不能用寒性药敷贴」)/排瘀反应是疗效标志;⑥ **完整配伍补齐**——芫花莪术丸(醋竹筒煨制逼毒)、新加栝蒌薤白汤(控涎丹七分)、增损启膈散、化痰逐瘀散结汤、加减紫金丹(甲乙两本主治病机方向不同)、乳疾灵颗粒(12 味,唯一带冲任者)。**corpus 实测**:痰瘀互结 73 条 / 痰瘀 403 条 / 窠囊 128 条 / 中焦±300字窗口内痰瘀同现 **146 条** / 功能主治含痰瘀 16 首 / 化痞消痞类 80 首。**术语校准**:库中作「**窠囊**」128 条,「窸囊」**0 条**,检索须用窠字。**触发词**:「痰瘀互结」「中焦痰瘀」「痰瘀阻滞」「痰瘀成囊」「痰瘀痞满」「外敷痰瘀方」「中焦外治法」「化痞膏」「消痞膏」「熨痞方」「贴脐」「箍围药」「痰瘀互结的阻滞」。
 
 ## Capability Reading Strategy
 
@@ -122,6 +127,8 @@ Active role(s): Expert, Mentor.
 | **症状→核心药分析** | 用户描述症状，问该用什么药/的高频核心药 | `python scripts/symptom_query.py <症状> --top N` |
 | **证据卡片检索** | 用户给关键词，检索 31.7 万张证据卡 | `python scripts/text_search.py <关键词>` |
 | **原文取回** | 用户给 chunk_id / card_id，要查原文 | `python scripts/evidence_fetch.py --card-id <id>` |
+| **复合主题检索**(病机 × 部位 × 症状,两个以上维度拼接) | 用户问「X 在 Y 部位有没有相关论述」「库里有没有同时讲 A 和 B」 | `python scripts/composite_query.py --llsj <kw1> <kw2>` — 见 `references/composite_syndrome_query.md` |
+| **外治法方剂检索**(病机 × 给药途径) | 用户问「X 的外敷/外用方有哪些」「贴脐/箍围/熨法一类的方子」 | `python scripts/external_formula_query.py --pathology <kw>` — 见 `references/external_formula_workflow.md` |
 | **通用课程问答** | 概念/条文/学习路径问题 | 先查 `references/okf/index.md` → `references/course_package.json` |
 
 ### Step 2 — 执行查询
@@ -221,9 +228,15 @@ fi
 | **蒸馏卡 summary 看起来被截断 / 用户贴的文本与库对不上** | 双源取证：见 `skills/double-fetch/SKILL.md` | 返回时标注"L1 books_json / L0 SQLite 取证"作为可信度依据 |
 | **查询结果含"待考"字段过多** | 检查是否命中"启发式源源识别 ≈10%"边界 | 改用 `scripts/verify_exact_match.py` 精确匹配验证 |
 | **口语化症状（如"小儿健脾"）0 命中** | 不报 "no coverage"，直接走 SQL LIKE | 见 `references/zero_hit_fallback_workflow.md` 4 步法 |
+| **`grep -c "<file>" SKILL.md` 返回次数 > 预期(Reference Priority 是 1)** | SKILL.md 内的 bash 示例命令用了真实文件名,自指导致 grep 多次命中(本 session 阴疮推送实测:1 处真实 + 2 处示例 = 3 hits) | **改用占位符**(如 `<file_basename>.md`);或者把示例命令包裹在 `<!-- example-only -->` 注释块让 grep 跳过 |
+| **GitHub `raw.githubusercontent.com` curl 与 `git log` / `gh api` 不一致** | raw 走 Fastly/Varnish CDN,不同 edge 节点 cache TTL 不一致(常见 5-30 分钟滞后) | **以 `gh api repos/<owner>/<repo>/contents/<path>` 为权威**;`sleep 8` 重试 raw curl 不一定能解决,不要浪费时间 |
 | **多源记载冲突** | 报告分歧，不裁决 | 列 2-3 部互证古籍原文 + 时间线，标"待 Erik 拍板" |
+| **多关键词 AND 查询命中数异常大(数百条)但读不出主题** | **同行 ≠ 共现**:一行库记录是一篇长文,关键词常落在互不相干的段落 | 改走 `scripts/composite_query.py` 的邻近窗口复核(默认 ±300 字),报「粗命中 / 收敛命中」双数字。规则见 `references/known_pitfalls.md` 坑 11 |
+| **复合主题关键词 0 命中** | 可能是库内实作写法不同(窠囊/窸囊、臌胀/鼓胀、淡饮/痰饮),不是库里没有 | 先 `python scripts/composite_query.py --variants <词>` 探写法,再换同义词重试;所有变体试过仍 0 才报"未覆盖"。规则见 `references/known_pitfalls.md` 坑 12 |
 | **`verify_prescription.py` 报 "no such table: zysjyj"** | 立即跑 `find_sqlite_path()` 验证 SQLite 是否部署；连不上表 = 文件是 0 字节占位符或字段名/编码错 | 走 `references/sqlite_deployment_recipe.md` 重新部署；连得上但仍报 `no such table` = 脚本硬编码路径 bug，参照 `scripts/verify_prescription.py` 改造为四级查找 |
 | **`verify_prescription.py` 步骤 1 「多方归纳」命中 0 首但 symptom_query 命中 N 首** | **字段错位 bug**：前者查 `zysjyj.ChuFang`，后者查 `zysjyj.GongNengZZ + TypeID=39`。病证/症状关键词通常只出现在「功能主治」列 | 把 `_fetch_prescriptions()` 改为 `SELECT ... FROM zysjyj WHERE TypeID=39 AND GongNengZZ LIKE ?` —— 症状用方剂库时应按 TypeID=39 + GongNengZZ 反查 |
+| **方名在方剂表查 0 条,但用户确信该方存在** | 古方名可能只存在于 `zysjllsj` 正文而未立条目(例:「新加栝蒌薤白汤」方剂表 0 条,俞根《通俗伤寒论·夹痞伤寒》正文有完整组成与主治语) | 回 `zysjllsj` 全文搜该方名取原文;输出时标明取自 zysjllsj 正文而非 zysjyj 表。**禁止**第一次 0 命中就报「库里没有」。规则见 `references/external_formula_workflow.md` §五 |
+| **外用方检索命中数远少于预期(如查「痰瘀外敷方」只得十几首)** | **列语义 bug**：外用方的病机写在组成/制法/用法/按语列,主治列写的是成品适应症(「症瘕痞块」)。只扫 `GongNengZZ` 会漏掉整类方 | 病机列(`ChuFang`/`ZhiFa`/`HuaXueCF`/`YongFaYL`/`ZhuYi`)与主治列(`GongNengZZ`/`XingZhuang`)**分列扫描,组内 OR、组间 AND**;或直接跑 `scripts/external_formula_query.py`。规则见 `references/known_pitfalls.md` 坑 13 |
 
 ### 失败模式编码规则
 
@@ -242,6 +255,7 @@ fi
 - For "deep dive" queries about why a formula uses a particular herb, or what a herb's 原始本草原文 says, route through `scripts/verify_prescription.py` and `references/tcm_research_methodology.md` — never invent 本经 原文 from memory.
 - For "含 X 药方剂的出处/作者/朝代/主治" tabular requests, route through `scripts/formula_table.py` and `references/formula_metadata_table.md` — output Markdown table directly; do not manually construct a list of (方名, 朝代, 出处) tuples from memory. The tool runs the same heuristic dictionary every time and stays consistent with the underlying SQLite state.
 - **No ellipsis in source quotes (Erik 硬性偏好，2026-08-17 tanpi 文档蒸馏实测确认)**: When quoting source text inside `「...」` / `『...』` blocks, **never** use `...` / `……` to abbreviate. Either quote the full passage from SQLite (`zysjllsj` / `zysjyj` via `references/external/zysj.db`) or write a clean summary outside the quote marks. The distillation SOP for removing existing ellipsis is `references/distillation_workflow.md` 第九节 + 2.3 节. Placeholder ellipsis like `...（共 8 条）` is allowed (it's not a quote).
+- **「补齐配伍」= 给全字段,不只给主治摘要 (Erik 2026-10-21 明确要求)**: 当用户要方剂的组成/配伍时,输出必须从 `zysjyj` 取齐这几列,**不要只给主治**:`ChuFang` 组成 + `ZhiFa` 制法 + `HuaXueCF`/`YongFaYL` 用法 + `ZhaiLu`/`LaiYuan` 出处 + `XingZhuang`/`GongNengZZ` 原文主治。注意**制法字段有 3 个来源**(`ZhiFa` 真制法 / `YongFaYL` 用法 / `XingZhuang` 性状),标错字段会让读者误判剂型 —— 详见 `references/gaoyao_query_workflow.md` §7.3。同名方有多版本时**并陈各版**(各带 ID + 出处 + 各自主治),不静默只取一条。
 
 ### Mentor
 - Use course references first, and distinguish direct course content from mentor-style synthesis.
